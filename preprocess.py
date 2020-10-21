@@ -89,9 +89,9 @@ if __name__ == "__main__":
         # 오류가 나지 않은 문맥만 추가
         else:
             if i % 10 != 0:
-                train_results.append(para_result)
+                train_results += para_result
             elif i % 10 == 0:
-                eval_results.append(para_result)
+                eval_results += para_result
 
     print("변환된 말뭉치 데이터 파일로 저장...")
     # 완료된 데이터를 pickle 데이터로 저장
