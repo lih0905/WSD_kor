@@ -15,10 +15,12 @@ import xml.etree.ElementTree as elemTree
 import pandas as pd
 
 data_path = 'Data'
+dict_path = 'Dict'
 fname1 = 'NXLS1902008050.json'
 fname2 = 'SXLS1902008030.json'
 train_fname = 'processed_train.pickle'
 eval_fname = 'processed_eval.pickle'
+dict_fname = 'processed_dictionary.pickle'
 
 def process(sent_input):
     """말뭉치 데이터의 문장이 주어졌을 때 다음 형식으로 변환
@@ -37,9 +39,13 @@ def process(sent_input):
             result.append((word_d['form'], word_d['label'], -1))
     return result
 
-def dict_to_list(dirname):
-    """우리말샘 사전 데이터를 딕셔너리로 변환"""
-    dict_list = []
+def dict_to_data(dirname):
+    """우리말샘 사전 데이터를 딕셔너리로 변환
+    'key' : 단어+품사
+    'definition' : 의미
+    'sense_no' : 단어 의미 순번
+    """
+    dict_data = {}
     filenames = os.listdir(dirname)
     for filename in filenames:
         if filename.endswith('xml'):
@@ -47,15 +53,26 @@ def dict_to_list(dirname):
             root = elemTree.parse(full_filename).getroot()
             for it in root.iter('item'):
                 word = it.find('wordInfo').find('word').text
+                word = word.replace('-', '')
+                word = word.replace('^', '')
                 sense_no = it.find('senseInfo').find('sense_no').text
                 try:
                     pos = it.find('senseInfo').find('pos').text
                 except:
                     pos = ''
                 definition = it.find('senseInfo').find('definition').text
-                dict_list.append([word, sense_no, pos, definition])
+                if word not in dict_data.keys():
+                    w_dict = {}
+                    w_dict['key'] = [word+"_"+pos]
+                    w_dict['definition'] = [definition]
+                    w_dict['sense_no'] = [int(sense_no)]
+                    dict_data[word] = w_dict
+                else:
+                    dict_data[word]['key'].append(word+"_"+pos)
+                    dict_data[word]['definition'].append(definition)
+                    dict_data[word]['sense_no'].append(int(sense_no))
     
-    return dict_list
+    return dict_data
 
 
 if __name__ == "__main__":
@@ -103,16 +120,13 @@ if __name__ == "__main__":
         
     print("우리말샘 사전 데이터 로딩...")
     # 우리말샘 사전 데이터 불러온 후 CSV 파일로 저장
-    dict_list = dict_to_list('Dict')
+    dict_data = dict_to_data(dict_path)
     
-    df = pd.DataFrame(dict_list, columns=['word', 'sense_no', 'pos', 'definition'])
-    # '제주-도' 등을 '제주도'로 변환
-    df['word'] = df['word'].apply(lambda x: x.replace('-',''))
-    df['sense_id'] = df['sense_no'].astype(int)
-    print(f'사전 데이터는 총 {len(df)}개 입니다.')
+    print(f'사전 데이터는 총 {len(dict_data)}개 입니다.')
     
     print("우리말샘 사전 데이터 저장...")
     # 변환 파일 저장
-    df.to_csv('Dict/dict_processed.csv', index=False)
+    with open(os.path.join(dict_path, dict_fname), 'wb') as f:
+        pickle.dump(dict_data, f)
     
     print("전처리가 끝났습니다.")

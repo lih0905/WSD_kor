@@ -50,7 +50,7 @@ def tokenize_glosses(text_arr, tokenizer, max_len):
     return glosses, masks
 
 # creates a sense label/ gloss dictionary for training/using the gloss encoder
-def dataloader_glosses(data, tokenizer, dict_df, max_len=-1):
+def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
     sense_glosses = {}
     sense_weights = {}
 
@@ -58,33 +58,45 @@ def dataloader_glosses(data, tokenizer, dict_df, max_len=-1):
 
     for sent in data:
         for word, pos, sense_no in sent:
-            if sense_no == -1:
-                continue # 다의어가 아닌 경우는 패스
+            if sense_no == -1 or sense_no in (777, 888, 999):
+                continue # 다의어가 아닌 경우나 고유명사인 경우는 패스
             else:
+                word = word.replace('·','')
                 key = word + "_" + pos
                 if key not in sense_glosses.keys():
                     # 단어의 모든 의미 불러옴
-                    gloss_arr = list(dict_df[dict_df['word']==word]['definition'])
-                    if len(gloss_arr) >= 1:
-                        sensekey_arr = range(1, len(gloss_arr)+1)
+                    try: 
+                        gloss_arr = gloss_dict[word]['definition']
+                        if len(gloss_arr) >= 1:
+                                sensekey_arr = gloss_dict[word]['sense_no']
 
-                        #preprocess glosses into tensors
-                        gloss_ids, gloss_masks = tokenize_glosses(gloss_arr, tokenizer, max_len)
-                        gloss_ids = torch.cat(gloss_ids, dim=0)
-                        gloss_masks = torch.stack(gloss_masks, dim=0)
-                        sense_glosses[key] = (gloss_ids, gloss_masks, sensekey_arr)
-                        # sense_glosses[key] = ( len(sensekey_arr) * max_len, len(sensekey_arr) * max_len, len(sensekey_arr) )
+                                #preprocess glosses into tensors
+                                gloss_ids, gloss_masks = tokenize_glosses(gloss_arr, tokenizer, max_len)
+                                gloss_ids = torch.cat(gloss_ids, dim=0)
+                                gloss_masks = torch.stack(gloss_masks, dim=0)
+                                sense_glosses[key] = (gloss_ids, gloss_masks, sensekey_arr)
+                                # sense_glosses[key] = ( len(sensekey_arr) * max_len, len(sensekey_arr) * max_len, len(sensekey_arr) )
 
-                        #intialize weights for balancing senses
-                        sense_weights[key] = [0]*len(gloss_arr)
-                        w_idx = sensekey_arr.index(sense_no)
-                        sense_weights[key][w_idx] += 1
-                    else: # 사전에 단어 없는 경우 넘어감
+                                #intialize weights for balancing senses
+                                sense_weights[key] = [0]*len(gloss_arr)
+                                w_idx = sensekey_arr.index(sense_no)
+                                sense_weights[key][w_idx] += 1
+                        else: # 사전에 단어 없는 경우 넘어감
+                            pass
+                    except ValueError:
+                        pass # 의미 번호가 제대로 매핑되어 있지 않은 경우
+                    except KeyError:
                         pass
+                            
                 else:
                     #update sense weight counts
-                    w_idx = sense_glosses[key][2].index(sense_no)
-                    sense_weights[key][w_idx] += 1
+                    try:
+                        w_idx = sense_glosses[key][2].index(sense_no)
+                        sense_weights[key][w_idx] += 1
+                    except ValueError:
+                        pass # 의미 번호가 제대로 매핑되어 있지 않은 경우
+                    except KeyError:
+                        pass # 의미 번호가 제대로 매핑되어 있지 않은 경우
                 
     #normalize weights
     for key in sense_weights:
@@ -94,7 +106,7 @@ def dataloader_glosses(data, tokenizer, dict_df, max_len=-1):
     return sense_glosses, sense_weights
 
 # Context data loader 구현
-def dataloader_context(tokenizer, text_data, bsz=1, max_len=-1):
+def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
     if max_len == -1: assert bsz==1 #otherwise need max_length for padding
 
     context_ids = []
@@ -121,7 +133,7 @@ def dataloader_context(tokenizer, text_data, bsz=1, max_len=-1):
             c_ids.extend(word_ids)
 
             # 다의어이거나 고유명사가 아닌 경우
-            if sense_no != -1 and sense_no != 777:
+            if sense_no != -1 and sense_no not in (777, 888, 999):
                 # 다의어 위치 마킹
                 o_masks.extend([idx]*len(word_ids))
                 #track example instance keys to get glosses
@@ -161,13 +173,13 @@ def dataloader_context(tokenizer, text_data, bsz=1, max_len=-1):
         for idx in range(0, len(data), bsz):
             if idx+bsz <=len(data): b = data[idx:idx+bsz]
             else: b = data[idx:]
-            context_ids = torch.cat([x for x,_,_,_,_,_ in b], dim=0)
-            context_attn_mask = torch.cat([x for _,x,_,_,_,_ in b], dim=0)
-            context_output_mask = torch.cat([x for _,_,x,_,_,_ in b], dim=0)
+            context_ids = torch.cat([x for x,_,_,_,_ in b], dim=0)
+            context_attn_mask = torch.cat([x for _,x,_,_,_ in b], dim=0)
+            context_output_mask = torch.cat([x for _,_,x,_,_ in b], dim=0)
             example_keys = []
-            for _,_,_,x,_,_ in b: example_keys.extend(x)
+            for _,_,_,x,_ in b: example_keys.extend(x)
             labels = []
-            for _,_,_,_,_,x in b: labels.extend(x)
+            for _,_,_,_,x in b: labels.extend(x)
             batched_data.append((context_ids, context_attn_mask, context_output_mask, example_keys, labels))
         return batched_data
     else:  
