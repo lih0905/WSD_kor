@@ -132,7 +132,7 @@ def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
             word_ids = [torch.tensor([[x]]) for x in tokenizer.encode(word.lower(), add_special_tokens=False)]
             c_ids.extend(word_ids)
 
-            # 다의어이거나 고유명사가 아닌 경우
+            # 다의어이면서 고유명사가 아닌 경우
             if sense_no != -1 and sense_no not in (777, 888, 999):
                 # 다의어 위치 마킹
                 o_masks.extend([idx]*len(word_ids))
