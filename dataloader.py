@@ -9,7 +9,6 @@ from torch.utils.data import Dataset
 
 from tokenization_kobert import KoBertTokenizer
 
-tokenizer = KoBertTokenizer.from_pretrained('monologg/kobert')
 
 # 최대 길이로 맞춰주는 함수 구현
 def normalize_length(ids, attn_mask, o_mask, max_len, pad_id):
@@ -168,7 +167,7 @@ def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
 
     #batch data if bsz > 1
     if bsz > 1:
-        print('Batching data with bsz={}...'.format(bsz))
+#         print('Batching data with bsz={}...'.format(bsz))
         batched_data = []
         for idx in range(0, len(data), bsz):
             if idx+bsz <=len(data): b = data[idx:idx+bsz]
