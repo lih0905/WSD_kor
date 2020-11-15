@@ -31,12 +31,12 @@ parser.add_argument('--lr', type=float, default=0.0001)
 parser.add_argument('--context-max-length', type=int, default=192)
 parser.add_argument('--gloss-max-length', type=int, default=128)
 parser.add_argument('--epochs', type=int, default=5)
-parser.add_argument('--context-bsz', type=int, default=4)
+parser.add_argument('--context-bsz', type=int, default=16)
 parser.add_argument('--gloss-bsz', type=int, default=64)
 parser.add_argument('--encoder-name', type=str, default='distilkobert')
 # 	choices=['bert-base', 'bert-large', 'roberta-base', 'roberta-large'])
 parser.add_argument('--checkpoint', type=str, default='checkpoint',
-	help='filepath at which to save best probing model (on dev set)')
+	help='filepath at which to save model')
 # parser.add_argument('--data-path', type=str, required=True,
 # 	help='Location of top-level directory for the Unified WSD Framework')
 
@@ -76,8 +76,13 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
             elif key not in gloss_dict.keys():
                 continue
             
-            gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[key]
-            
+            try:
+                gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[key]
+            except:
+                print(j, (key, label))
+                print(example_keys, labels, indices)
+                continue
+                    
             gloss_ids = gloss_ids.cuda()
             gloss_attn_mask = gloss_attn_mask.cuda()
             
@@ -88,7 +93,13 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
             output = torch.mm(output, gloss_output)
             
             # loss 계산
-            idx = sense_keys.index(label)
+            try:
+                idx = sense_keys.index(label)
+            except:
+                print(sense_keys)
+                print(j, (key, label))
+                # print(example_keys, labels, indices)
+                continue
             label_tensor = torch.tensor([idx]).to('cuda')
             
             loss += criterion[key](output, label_tensor)
@@ -214,8 +225,9 @@ if __name__ == "__main__":
         urimal_dict = pickle.load(f)
 
     # 평가 데이터와 사전 토크나이즈
+    eval_data = eval_data[:4]
     eval_gloss_dict, eval_gloss_weight = dataloader_glosses(eval_data, tokenizer, urimal_dict, args.gloss_max_length)
-    eval_data = dataloader_context(eval_data[:100], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
+    eval_data = dataloader_context(eval_data, tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
     
     # 모델 로딩
     model = BiEncoderModel(bert_model)
@@ -252,6 +264,7 @@ if __name__ == "__main__":
         # 훈련 데이터 로드
         with open('Data/processed_train.pickle', 'rb') as f:
             train_data = pickle.load(f)
+        # train_data = train_data[4*289:4*294]
         train_gloss_dict, train_gloss_weight = dataloader_glosses(train_data, tokenizer, urimal_dict, args.gloss_max_length)        
         
         # 훈련 스텝
@@ -260,7 +273,7 @@ if __name__ == "__main__":
         for key in train_gloss_dict:
             criterion[key] = torch.nn.CrossEntropyLoss(reduction='none')
                     
-        train_data = dataloader_context(train_data[:1000], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
+        train_data = dataloader_context(train_data, tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
 
         train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, args.epochs, model, optimizer, criterion, args.gloss_bsz, args.grad_norm, logger)
         
