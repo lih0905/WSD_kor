@@ -114,8 +114,9 @@ def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
     example_keys = []
 
     context_output_masks = []
-    instances = []
+    
     labels = []
+    indices = []
 
     #tensorize data
     for sent in text_data:
@@ -124,6 +125,7 @@ def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
         o_masks = [-1] # 다의어 마스킹
         sent_keys = []
         sent_labels = []
+        sent_indices = []
 
         # 각 단어에 대해서
         for idx, (word, pos, sense_no) in enumerate(sent):
@@ -139,6 +141,7 @@ def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
                 ex_key = word + '_' + pos
                 sent_keys.append(ex_key)
                 sent_labels.append(sense_no)
+                sent_indices.append(idx)
             else:
                 #mask out output of context encoder for WSD task (not labeled)
                 o_masks.extend([-1]*len(word_ids))
@@ -161,9 +164,10 @@ def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
             context_output_masks.append(torch.tensor(o_masks).unsqueeze(dim=0))
             example_keys.append(sent_keys)
             labels.append(sent_labels)
+            indices.append(sent_indices)
 
     #package data
-    data = list(zip(context_ids, context_attn_masks, context_output_masks, example_keys, labels))
+    data = list(zip(context_ids, context_attn_masks, context_output_masks, example_keys, labels, indices))
 
     #batch data if bsz > 1
     if bsz > 1:
@@ -172,14 +176,16 @@ def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
         for idx in range(0, len(data), bsz):
             if idx+bsz <=len(data): b = data[idx:idx+bsz]
             else: b = data[idx:]
-            context_ids = torch.cat([x for x,_,_,_,_ in b], dim=0)
-            context_attn_mask = torch.cat([x for _,x,_,_,_ in b], dim=0)
-            context_output_mask = torch.cat([x for _,_,x,_,_ in b], dim=0)
+            context_ids = torch.cat([x for x,_,_,_,_,_ in b], dim=0)
+            context_attn_mask = torch.cat([x for _,x,_,_,_,_ in b], dim=0)
+            context_output_mask = torch.cat([x for _,_,x,_,_,_ in b], dim=0)
             example_keys = []
-            for _,_,_,x,_ in b: example_keys.extend(x)
+            for _,_,_,x,_,_ in b: example_keys.extend(x)
             labels = []
-            for _,_,_,_,x in b: labels.extend(x)
-            batched_data.append((context_ids, context_attn_mask, context_output_mask, example_keys, labels))
+            for _,_,_,_,x,_ in b: labels.extend(x)
+            indices = []
+            for _,_,_,_,_,x in b: indices.extend(x)
+            batched_data.append((context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices))
         return batched_data
     else:  
         return data
