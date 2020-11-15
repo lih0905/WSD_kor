@@ -51,7 +51,7 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
     total_loss = 0
     start_time = time.time()
     
-    for i, (context_ids, context_attn_mask, context_output_mask, example_keys, labels) in tqdm.tqdm(enumerate(train_data)):
+    for i, (context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices) in tqdm.tqdm(enumerate(train_data)):
         
         model.zero_grad()
         
@@ -132,7 +132,7 @@ def predict(eval_data, gloss_dict, model):
     model.eval()
     preds = []
     with torch.no_grad():
-        for context_ids, context_attn_mask, context_output_mask, example_keys, labels in eval_data:
+        for context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices in eval_data:
 
             # 컨텍스트 인코더 계산
             context_ids = context_ids.to('cuda')
@@ -215,7 +215,7 @@ if __name__ == "__main__":
 
     # 평가 데이터와 사전 토크나이즈
     eval_gloss_dict, eval_gloss_weight = dataloader_glosses(eval_data, tokenizer, urimal_dict, args.gloss_max_length)
-    eval_data = dataloader_context(eval_data[:12], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
+    eval_data = dataloader_context(eval_data[:100], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
     
     # 모델 로딩
     model = BiEncoderModel(bert_model)
@@ -260,7 +260,7 @@ if __name__ == "__main__":
         for key in train_gloss_dict:
             criterion[key] = torch.nn.CrossEntropyLoss(reduction='none')
                     
-        train_data = dataloader_context(train_data[:12], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
+        train_data = dataloader_context(train_data[:1000], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
 
         train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, args.epochs, model, optimizer, criterion, args.gloss_bsz, args.grad_norm, logger)
         

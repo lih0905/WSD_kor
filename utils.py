@@ -28,7 +28,7 @@ def get_logger(args):
         format="%(asctime)s | %(filename)15s | %(levelname)7s | %(funcName)10s | %(message)s",
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
     logger.info("-"*40)
