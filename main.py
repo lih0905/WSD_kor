@@ -18,7 +18,7 @@ from tokenization_kobert import KoBertTokenizer
 
 from dataloader import dataloader_glosses, dataloader_context
 from model import BiEncoderModel
-from utils import epoch_time
+from utils import epoch_time, gen_checkpoint_id, get_logger, checkpoint_count
 
 # Argparse Setting
 parser = argparse.ArgumentParser(description='다의어 분리 모델 파라미터 설정')
@@ -33,10 +33,10 @@ parser.add_argument('--gloss-max-length', type=int, default=128)
 parser.add_argument('--epochs', type=int, default=5)
 parser.add_argument('--context-bsz', type=int, default=4)
 parser.add_argument('--gloss-bsz', type=int, default=64)
-# parser.add_argument('--encoder-name', type=str, default='bert-base',
+parser.add_argument('--encoder-name', type=str, default='distilkobert')
 # 	choices=['bert-base', 'bert-large', 'roberta-base', 'roberta-large'])
-# parser.add_argument('--ckpt', type=str, required=True,
-# 	help='filepath at which to save best probing model (on dev set)')
+parser.add_argument('--checkpoint', type=str, default='checkpoint',
+	help='filepath at which to save best probing model (on dev set)')
 # parser.add_argument('--data-path', type=str, required=True,
 # 	help='Location of top-level directory for the Unified WSD Framework')
 
@@ -74,7 +74,7 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
             if key not in gloss_dict.keys() and key.replace("·", "") in gloss_dict.keys():
                 key = key.replace("·", "")
             elif key not in gloss_dict.keys():
-                pass
+                continue
             
             gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[key]
             
@@ -157,11 +157,12 @@ def predict(eval_data, gloss_dict, model):
                 
     return np.array(preds)
             
-def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, model, optimizer, criterion, gloss_bsz, max_grad_norm):
+def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, model, optimizer, criterion, gloss_bsz, max_grad_norm, logger):
     print(f"The number of iteration for each epoch is {len(train_data)}")
     
+    
     for epoch in range(epochs):
-        print("-"*20 + "epoch", epoch+1, "initialized.", "-"*20)
+        logger.info(f"Epoch {epoch+1} initialized.")
         start_time = time.time()
         model, optimizer, total_loss = train_one_epoch(train_data, train_gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm)
         end_time = time.time()
@@ -175,16 +176,23 @@ def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, mode
             labels += data[4]
         pred_acc = np.mean(preds == np.array(labels))
         
-        print(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
-        print(f'\tTrain Loss: {total_loss:.3f}')
-        print(f'\tEval. Acc: {pred_acc*100:.2f}%')
+        logger.info(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
+        logger.info(f'\tTrain Loss: {total_loss:.3f}')
+        logger.info(f'\tEval. Acc: {pred_acc*100:.2f}%')
         
+        # Saving
+        torch.save(model, f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
+        logger.info(f"Checkpoint saved at {args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
+        args.checkpoint_count += 1
+
 
 def evaluate(eval_data, gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm):
     pass
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    args.checkpoint = os.path.join(args.checkpoint,gen_checkpoint_id(args))
+    
     
     #set random seeds
     torch.manual_seed(args.rand_seed)
@@ -207,13 +215,37 @@ if __name__ == "__main__":
 
     # 평가 데이터와 사전 토크나이즈
     eval_gloss_dict, eval_gloss_weight = dataloader_glosses(eval_data, tokenizer, urimal_dict, args.gloss_max_length)
-    eval_data = dataloader_context(eval_data[:100], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
+    eval_data = dataloader_context(eval_data[:12], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
     
     # 모델 로딩
     model = BiEncoderModel(bert_model)
     model.to('cuda')
     
+    # If checkpoint path exists, load the last model
+    if os.path.isdir(args.checkpoint):
+        # EXAMPLE: "{engine_name}_{task_name}_{timestamp}/saved_checkpoint_1"     
+        args.checkpoint_count = checkpoint_count(args.checkpoint)
+        logger = get_logger(args)
+        logger.info(f"Checkpoint path directory exists")
+        logger.info(f"Loading model from saved_checkpoint_{args.checkpoint_count}")
+        model = torch.load(f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}") 
+        
+        args.checkpoint_count += 1 #
+    # If there is none, create a checkpoint folder and train from scratch
+    else:
+        try:
+            os.makedirs(args.checkpoint)
+        except:
+            print("Ignoring Existing File Path ...")
 
+        args.checkpoint_count = 0
+        logger = get_logger(args)
+
+        logger.info(f"Creating a new directory for {args.checkpoint}")
+
+    args.logger = logger
+    
+        
     if args.eval:
         pass
     else:
@@ -228,7 +260,7 @@ if __name__ == "__main__":
         for key in train_gloss_dict:
             criterion[key] = torch.nn.CrossEntropyLoss(reduction='none')
                     
-        train_data = dataloader_context(train_data[:1000], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
+        train_data = dataloader_context(train_data[:12], tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
 
-        train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, args.epochs, model, optimizer, criterion, args.gloss_bsz, args.grad_norm)
+        train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, args.epochs, model, optimizer, criterion, args.gloss_bsz, args.grad_norm, logger)
         
