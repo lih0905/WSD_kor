@@ -27,7 +27,7 @@ def process_encoder_outputs(output, mask, as_tensor=False):
                 combined_outputs.append(torch.mean(torch.stack(avg_arr, dim=-1), dim=-1))
             # 이번 단어의 표현으로 대체
             avg_arr = [rep]
-        else:a
+        else:
             assert position == idx 
             avg_arr.append(rep)
     #get last example from avg_arr
@@ -36,8 +36,8 @@ def process_encoder_outputs(output, mask, as_tensor=False):
     else: return combined_outputs
 
 class GlossEncoder(nn.Module):
-    def __init__(self, gloss_encoder)#, hidden_dim):
-        super(self).__init__()
+    def __init__(self, gloss_encoder):#, hidden_dim):
+        super(GlossEncoder, self).__init__()
         self.gloss_encoder = gloss_encoder
 #         self.gloss_hdim = hidden_dim
         
@@ -47,8 +47,8 @@ class GlossEncoder(nn.Module):
         return gloss_output[:,0,:] # 각 의미별 [CLS] 토큰의 임베딩 출력
     
 class ContextEncoder(nn.Module):
-    def __init__(self, context_encoder)#, hidden_dim):
-        super(self).__init__()
+    def __init__(self, context_encoder):#, hidden_dim):
+        super(ContextEncoder, self).__init__()
         self.context_encoder = context_encoder
 #         self.context_hdim = hidden_dim
         
@@ -65,7 +65,7 @@ class ContextEncoder(nn.Module):
     
 class BiEncoderModel(nn.Module):
     def __init__(self, encoder):
-        super(self).__init__()
+        super(BiEncoderModel, self).__init__()
         
         self.context_encoder = ContextEncoder(encoder)
         self.gloss_encoder = GlossEncoder(encoder)
@@ -73,5 +73,5 @@ class BiEncoderModel(nn.Module):
     def context_forward(self, context_input, context_input_mask, context_example_mask):
         return self.context_encoder.forward(context_input, context_input_mask, context_example_mask)
     
-    def gloss_forward(self, gloss_input, gloss_mask)
+    def gloss_forward(self, gloss_input, gloss_mask):
         return self.gloss_encoder.forward(gloss_input, gloss_mask)
