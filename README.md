@@ -2,7 +2,7 @@
 
 다의어가 주어진 문장에서 구체적으로 어떤 의미를 가지는 지 분석하는 모델 구현. 데이터셋은 국립국어원 어휘 의미 분석 말뭉치를 이용한다.
 
-* 데이터셋 : 모두의 말뭉치(어휘 의미 분석 말뭉치)[https://corpus.korean.go.kr/](https://corpus.korean.go.kr/)
+* 데이터셋 : 모두의 말뭉치(어휘 의미 분석 말뭉치)([https://corpus.korean.go.kr/](https://corpus.korean.go.kr/))
 * 사전 : 우리말샘([https://opendict.korean.go.kr/main](https://opendict.korean.go.kr/main))
 * 모델 : [Gloss Informed Bi-encoders for WSD](https://github.com/facebookresearch/wsd-biencoders)
 
