@@ -30,7 +30,15 @@ def get_logger(args):
     )
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
-
+    
+    # 화면 출력 
+    streamHandler = logging.StreamHandler()
+    streamHandler.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s;[%(levelname)7s];%(message)s",
+                              "%Y-%m-%d %H:%M:%S")
+    streamHandler.setFormatter(formatter)
+    logger.addHandler(streamHandler)
+    
     logger.info("-"*40)
     for arg in vars(args):
         logger.info(f"{arg}: {getattr(args, arg)}")
