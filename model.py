@@ -3,6 +3,7 @@
  : Gloss와 Context 별로 모델을 구현한 후 결합하는 모델 별도 생성
 """
 
+import copy
 
 import torch
 import torch.nn as nn
@@ -38,7 +39,7 @@ def process_encoder_outputs(output, mask, as_tensor=False):
 class GlossEncoder(nn.Module):
     def __init__(self, gloss_encoder):#, hidden_dim):
         super(GlossEncoder, self).__init__()
-        self.gloss_encoder = gloss_encoder
+        self.gloss_encoder = copy.deepcopy(gloss_encoder)
 #         self.gloss_hdim = hidden_dim
         
     def forward(self, input_ids, attn_mask):
@@ -49,7 +50,7 @@ class GlossEncoder(nn.Module):
 class ContextEncoder(nn.Module):
     def __init__(self, context_encoder):#, hidden_dim):
         super(ContextEncoder, self).__init__()
-        self.context_encoder = context_encoder
+        self.context_encoder = copy.deepcopy(context_encoder)
 #         self.context_hdim = hidden_dim
         
     def forward(self, input_ids, attn_mask, output_mask):

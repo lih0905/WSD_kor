@@ -28,11 +28,12 @@ parser.add_argument('--rand_seed', type=int, default=42)
 parser.add_argument('--grad-norm', type=float, default=1.0)
 parser.add_argument('--lr', type=float, default=0.0001)
 # parser.add_argument('--warmup', type=int, default=10000)
-parser.add_argument('--context-max-length', type=int, default=192)
-parser.add_argument('--gloss-max-length', type=int, default=128)
+parser.add_argument('--multigpu', action='store_true')
+parser.add_argument('--context-max-length', type=int, default=256)
+parser.add_argument('--gloss-max-length', type=int, default=192)
 parser.add_argument('--epochs', type=int, default=5)
-parser.add_argument('--context-bsz', type=int, default=16)
-parser.add_argument('--gloss-bsz', type=int, default=64)
+parser.add_argument('--context-bsz', type=int, default=64)
+parser.add_argument('--gloss-bsz', type=int, default=128)
 parser.add_argument('--encoder-name', type=str, default='distilkobert')
 # 	choices=['bert-base', 'bert-large', 'roberta-base', 'roberta-large'])
 parser.add_argument('--checkpoint', type=str, default='checkpoint',
@@ -44,8 +45,11 @@ parser.add_argument('--checkpoint', type=str, default='checkpoint',
 parser.add_argument('--eval', action='store_true',
 	help='Flag to set script to evaluate probe (rather than train)')
 
+# multigpu 일 때 설정
+context_device = "cuda:0"
+gloss_device = "cuda:1"
 
-def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm):
+def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm, multigpu=False):
     # 한 에폭을 훈련시키는 함수. 
     model.train()
     total_loss = 0
@@ -56,8 +60,13 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
         model.zero_grad()
         
         # 컨텍스트 인코더 계산
-        context_ids = context_ids.to('cuda')
-        context_attn_mask = context_attn_mask.to('cuda')
+        if multigpu:
+            context_ids = context_ids.to(context_device)
+            context_attn_mask = context_attn_mask.to(context_device)
+        else:
+            context_ids = context_ids.to('cuda')
+            context_attn_mask = context_attn_mask.to('cuda')
+            
         context_output = model.context_forward(context_ids, context_attn_mask, context_output_mask)
     
         # 의미 인코더 계산
@@ -82,13 +91,21 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
                 print(j, (key, label))
                 print(example_keys, labels, indices)
                 continue
-                    
-            gloss_ids = gloss_ids.cuda()
-            gloss_attn_mask = gloss_attn_mask.cuda()
+                
+            if multigpu:
+                gloss_ids = gloss_ids.to(gloss_device)
+                gloss_attn_mask = gloss_attn_mask.to(gloss_device)
+            else:
+                gloss_ids = gloss_ids.cuda()
+                gloss_attn_mask = gloss_attn_mask.cuda()                    
             
             gloss_output = model.gloss_forward(gloss_ids, gloss_attn_mask)
             gloss_output = gloss_output.transpose(0,1)
             
+            # multigpu인 경우 각각의 GPU에서 연산한 결과를 CPU로 가져옴
+            if multigpu:
+                output = output.cpu()
+                gloss_output = gloss_output.cpu()            
             # Dot product of context output and gloss output
             output = torch.mm(output, gloss_output)
             
@@ -100,7 +117,11 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
                 print(j, (key, label))
                 # print(example_keys, labels, indices)
                 continue
-            label_tensor = torch.tensor([idx]).to('cuda')
+                
+            if multigpu:
+                label_tensor = torch.tensor([idx])
+            else:
+                label_tensor = torch.tensor([idx]).to('cuda')
             
             loss += criterion[key](output, label_tensor)
             gloss_sz += gloss_output.size(-1) # transpose 했으므로
@@ -139,28 +160,41 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
 
     return model, optimizer, total_loss
 
-def predict(eval_data, gloss_dict, model):
+def predict(eval_data, gloss_dict, model, multigpu=False):
     model.eval()
     preds = []
     with torch.no_grad():
         for context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices in eval_data:
 
             # 컨텍스트 인코더 계산
-            context_ids = context_ids.to('cuda')
-            context_attn_mask = context_attn_mask.to('cuda')
+            if multigpu:
+                context_ids = context_ids.to(context_device)
+                context_attn_mask = context_attn_mask.to(context_device)
+            else:
+                context_ids = context_ids.to('cuda')
+                context_attn_mask = context_attn_mask.to('cuda')
+                
             context_output = model.context_forward(context_ids, context_attn_mask, context_output_mask)
 
             # 의미 인코더 계산
             for output, key in zip(context_output.split(1, dim=0), example_keys):
                 # 의미 임베딩
                 gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[key]
-                gloss_ids = gloss_ids.cuda()
-                gloss_attn_mask = gloss_attn_mask.cuda()
+
+                if multigpu:
+                    gloss_ids = gloss_ids.to(gloss_device)
+                    gloss_attn_mask = gloss_attn_mask.to(gloss_device)
+                else:
+                    gloss_ids = gloss_ids.cuda()
+                    gloss_attn_mask = gloss_attn_mask.cuda()      
 
                 gloss_output = model.gloss_forward(gloss_ids, gloss_attn_mask)
                 gloss_output = gloss_output.transpose(0,1)
 
                 # Dot product of context output and gloss output
+                if multigpu:
+                    output = output.cpu()
+                    gloss_output = gloss_output.cpu()                    
                 output = torch.mm(output, gloss_output)
                 pred_idx = output.topk(1, dim=-1)[1].squeeze().item()
                 pred_label = sense_keys[pred_idx]
@@ -168,19 +202,19 @@ def predict(eval_data, gloss_dict, model):
                 
     return np.array(preds)
             
-def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, model, optimizer, criterion, gloss_bsz, max_grad_norm, logger):
+def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, model, optimizer, criterion, gloss_bsz, max_grad_norm, logger, multigpu=False):
     print(f"The number of iteration for each epoch is {len(train_data)}")
     
     
     for epoch in range(epochs):
         logger.info(f"Epoch {epoch+1} initialized.")
         start_time = time.time()
-        model, optimizer, total_loss = train_one_epoch(train_data, train_gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm)
+        model, optimizer, total_loss = train_one_epoch(train_data, train_gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm, multigpu)
         end_time = time.time()
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
         
         # 예측 결과
-        preds = predict(eval_data, eval_gloss_dict, model)
+        preds = predict(eval_data, eval_gloss_dict, model, multigpu)
         # 실제 결과
         labels = []
         for data in eval_data:
@@ -190,15 +224,12 @@ def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, mode
         logger.info(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
         logger.info(f'\tTrain Loss: {total_loss:.3f}')
         logger.info(f'\tEval. Acc: {pred_acc*100:.2f}%')
-        
+    
         # Saving
         torch.save(model, f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
         logger.info(f"Checkpoint saved at {args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
         args.checkpoint_count += 1
 
-
-def evaluate(eval_data, gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm):
-    pass
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -225,13 +256,17 @@ if __name__ == "__main__":
         urimal_dict = pickle.load(f)
 
     # 평가 데이터와 사전 토크나이즈
-    eval_data = eval_data[:4]
+    # eval_data = eval_data[:4]
     eval_gloss_dict, eval_gloss_weight = dataloader_glosses(eval_data, tokenizer, urimal_dict, args.gloss_max_length)
     eval_data = dataloader_context(eval_data, tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
     
     # 모델 로딩
     model = BiEncoderModel(bert_model)
-    model.to('cuda')
+    if args.multigpu: 
+        model.gloss_encoder = model.gloss_encoder.to(gloss_device)
+        model.context_encoder = model.context_encoder.to(context_device)
+    else:
+        model = model.to('cuda')
     
     # If checkpoint path exists, load the last model
     if os.path.isdir(args.checkpoint):
@@ -275,5 +310,5 @@ if __name__ == "__main__":
                     
         train_data = dataloader_context(train_data, tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
 
-        train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, args.epochs, model, optimizer, criterion, args.gloss_bsz, args.grad_norm, logger)
+        train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, args.epochs, model, optimizer, criterion, args.gloss_bsz, args.grad_norm, logger, args.multigpu)
         
