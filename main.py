@@ -29,11 +29,11 @@ parser.add_argument('--grad-norm', type=float, default=1.0)
 parser.add_argument('--lr', type=float, default=0.0001)
 # parser.add_argument('--warmup', type=int, default=10000)
 parser.add_argument('--multigpu', action='store_true')
-parser.add_argument('--context-max-length', type=int, default=256)
-parser.add_argument('--gloss-max-length', type=int, default=192)
+parser.add_argument('--context-max-length', type=int, default=128)
+parser.add_argument('--gloss-max-length', type=int, default=128)
 parser.add_argument('--epochs', type=int, default=5)
-parser.add_argument('--context-bsz', type=int, default=64)
-parser.add_argument('--gloss-bsz', type=int, default=128)
+parser.add_argument('--context-bsz', type=int, default=16)
+parser.add_argument('--gloss-bsz', type=int, default=64)
 parser.add_argument('--encoder-name', type=str, default='distilkobert')
 # 	choices=['bert-base', 'bert-large', 'roberta-base', 'roberta-large'])
 parser.add_argument('--checkpoint', type=str, default='checkpoint',
@@ -49,12 +49,14 @@ parser.add_argument('--eval', action='store_true',
 context_device = "cuda:0"
 gloss_device = "cuda:1"
 
-def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm, multigpu=False):
+def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm, model_path, multigpu=False):
     # 한 에폭을 훈련시키는 함수. 
     model.train()
     total_loss = 0
     start_time = time.time()
     
+    save_each = int(len(train_data)/10)
+
     for i, (context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices) in tqdm.tqdm(enumerate(train_data)):
         
         model.zero_grad()
@@ -157,7 +159,9 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
 
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
             optimizer.step()                
-
+        
+        if save_each > len(train_data[0]) and i % save_each == 1:
+            torch.save(model,model_path+str(i)) 
     return model, optimizer, total_loss
 
 def predict(eval_data, gloss_dict, model, multigpu=False):
@@ -208,8 +212,10 @@ def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, mode
     
     for epoch in range(epochs):
         logger.info(f"Epoch {epoch+1} initialized.")
+        model_path = f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}"
+
         start_time = time.time()
-        model, optimizer, total_loss = train_one_epoch(train_data, train_gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm, multigpu)
+        model, optimizer, total_loss = train_one_epoch(train_data, train_gloss_dict, model, optimizer, criterion, gloss_bsz, max_grad_norm, model_path, multigpu)
         end_time = time.time()
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
         
@@ -299,7 +305,7 @@ if __name__ == "__main__":
         # 훈련 데이터 로드
         with open('Data/processed_train.pickle', 'rb') as f:
             train_data = pickle.load(f)
-        # train_data = train_data[4*289:4*294]
+        train_data = train_data[:14]
         train_gloss_dict, train_gloss_weight = dataloader_glosses(train_data, tokenizer, urimal_dict, args.gloss_max_length)        
         
         # 훈련 스텝
