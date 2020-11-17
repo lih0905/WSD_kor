@@ -31,9 +31,9 @@ parser.add_argument('--lr', type=float, default=0.0001)
 parser.add_argument('--multigpu', action='store_true')
 parser.add_argument('--context-max-length', type=int, default=128)
 parser.add_argument('--gloss-max-length', type=int, default=128)
-parser.add_argument('--epochs', type=int, default=5)
-parser.add_argument('--context-bsz', type=int, default=16)
-parser.add_argument('--gloss-bsz', type=int, default=64)
+parser.add_argument('--epochs', type=int, default=1)
+parser.add_argument('--context-bsz', type=int, default=4)
+parser.add_argument('--gloss-bsz', type=int, default=32)
 parser.add_argument('--encoder-name', type=str, default='distilkobert')
 # 	choices=['bert-base', 'bert-large', 'roberta-base', 'roberta-large'])
 parser.add_argument('--checkpoint', type=str, default='checkpoint',
@@ -56,7 +56,9 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
     start_time = time.time()
     
     save_each = int(len(train_data)/10)
-
+#     print("len(train_data) : ", len(train_data))
+#     print("Save each : ", save_each)
+    
     for i, (context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices) in tqdm.tqdm(enumerate(train_data)):
         
         model.zero_grad()
@@ -160,8 +162,10 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
             optimizer.step()                
         
-        if save_each > len(train_data[0]) and i % save_each == 1:
-            torch.save(model,model_path+str(i)) 
+        
+        if save_each > 1 and i > 0 and i % save_each == 0:
+            logger.info(f'Save checkpoint at {i}-th iteration.')
+            torch.save(model, model_path+str(i)) 
     return model, optimizer, total_loss
 
 def predict(eval_data, gloss_dict, model, multigpu=False):
@@ -274,7 +278,7 @@ if __name__ == "__main__":
         urimal_dict = pickle.load(f)
 
     # 평가 데이터와 사전 토크나이즈
-    # eval_data = eval_data[:4]
+#     eval_data = eval_data[:4]
     eval_gloss_dict, eval_gloss_weight = dataloader_glosses(eval_data, tokenizer, urimal_dict, args.gloss_max_length)
     eval_data = dataloader_context(eval_data, tokenizer, bsz=args.context_bsz, max_len=args.context_max_length)
     
@@ -317,7 +321,7 @@ if __name__ == "__main__":
         # 훈련 데이터 로드
         with open('Data/processed_train.pickle', 'rb') as f:
             train_data = pickle.load(f)
-        train_data = train_data[:14]
+#         train_data = train_data[:100]
         train_gloss_dict, train_gloss_weight = dataloader_glosses(train_data, tokenizer, urimal_dict, args.gloss_max_length)        
         
         # 훈련 스텝
