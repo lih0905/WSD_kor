@@ -183,7 +183,19 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
             # 의미 인코더 계산
             for output, key in zip(context_output.split(1, dim=0), example_keys):
                 # 의미 임베딩
-                gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[key]
+                # "시·군·구" 같은 단어는 우리말사전에 "시군구"로 등록되어 있으므로
+                # 다음처럼 변환해보고, 그럼에도 단어가 사전에 없는 경우는 넘어갈 것
+                if key not in gloss_dict.keys() and key.replace("·", "") in gloss_dict.keys():
+                    key = key.replace("·", "")
+                elif key not in gloss_dict.keys():
+                    continue
+
+                try:
+                    gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[key]
+                except:
+                    print(j, (key, label))
+                    print(example_keys, labels, indices)
+                    continue
 
                 if multigpu:
                     gloss_ids = gloss_ids.to(gloss_device)
