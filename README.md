@@ -4,9 +4,38 @@
 
 * 데이터셋 : 모두의 말뭉치(어휘 의미 분석 말뭉치)([https://corpus.korean.go.kr/](https://corpus.korean.go.kr/))
 * 사전 : 우리말샘([https://opendict.korean.go.kr/main](https://opendict.korean.go.kr/main))
-* 모델 : [Gloss Informed Bi-encoders for WSD](https://github.com/facebookresearch/wsd-biencoders)
+* 다의어 : 우리말샘 기준 의미가 2개 이상인 단어 (이 프로젝트에서는 명사로 한정)
+
+## 어휘 의미 분석 말뭉치 
+
+## 전처리 방법
+
+## 모델
+
+* Baseline : 훈련 데이터셋 기준 각 단어별 최고 빈출 단어로 추론
+* [Gloss Informed Bi-encoders for WSD](https://github.com/facebookresearch/wsd-biencoders) : 
 
 ## 사용법
+
+* 전처리
+
+```python
+python preprocess.py
+```
+
+* Baseline 결과
+
+```python
+python baseline.py
+```
+
+* Bi-encoder 모델 훈련
+
+```python
+python main.py
+```
+
+* Bi-encoder 모델 추론
 
 ```python
 python eval.py --text "그의 꿈은 커서 대통령이 되는 것이다."   
