@@ -25,6 +25,11 @@ parser = argparse.ArgumentParser(description='다의어 분리 모델 실험')
 #training arguments
 parser.add_argument('--model_date', type=str, default='distilkobert_202011200028')
 parser.add_argument('--text', type=str, required=True)
+parser.add_argument('--multigpu', action='store_true')
+
+# multigpu 일 때 설정
+context_device = "cuda:0"
+gloss_device = "cuda:1"
 
 mecab = Mecab()
 
@@ -41,6 +46,7 @@ def text_process(text, urimal_dict):
 if __name__ == "__main__":
     args = parser.parse_args()
     text = args.text
+    multigpu = args.multigpu
     
     with open('Dict/processed_dictionary.pickle', 'rb') as f:
         urimal_dict = pickle.load(f)
@@ -53,7 +59,7 @@ if __name__ == "__main__":
     model.to('cuda')    
     
     model_list = os.listdir(f"checkpoint/{args.model_date}") 
-    model_fname = 'saved_checkpoint_16825'
+    model_fname = 'saved_checkpoint_1'
    
     model = torch.load(f"checkpoint/{args.model_date}/{model_fname}") 
     model.eval()
@@ -67,24 +73,35 @@ if __name__ == "__main__":
     preds = []
     with torch.no_grad():
         for context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices in eval_data:
-
             # 컨텍스트 인코더 계산
-            context_ids = context_ids.to('cuda')
-            context_attn_mask = context_attn_mask.to('cuda')
+            if multigpu:
+                context_ids = context_ids.to(context_device)
+                context_attn_mask = context_attn_mask.to(context_device)
+            else:
+                context_ids = context_ids.to('cuda')
+                context_attn_mask = context_attn_mask.to('cuda')
             context_output = model.context_forward(context_ids, context_attn_mask, context_output_mask)
 
             # 의미 인코더 계산
             for output, key in zip(context_output.split(1, dim=0), example_keys):
                 # 의미 임베딩
                 gloss_ids, gloss_attn_mask, sense_keys = eval_gloss_dict[key]
-                gloss_ids = gloss_ids.cuda()
-                gloss_attn_mask = gloss_attn_mask.cuda()
+                if multigpu:
+                    gloss_ids = gloss_ids.to(gloss_device)
+                    gloss_attn_mask = gloss_attn_mask.to(gloss_device)
+                else:
+                    gloss_ids = gloss_ids.cuda()
+                    gloss_attn_mask = gloss_attn_mask.cuda()       
 
                 gloss_output = model.gloss_forward(gloss_ids, gloss_attn_mask)
                 gloss_output = gloss_output.transpose(0,1)
 
                 # Dot product of context output and gloss output
+                if multigpu:
+                    output = output.cpu()
+                    gloss_output = gloss_output.cpu()     
                 output = torch.mm(output, gloss_output)
+                
                 pred_idx = output.topk(1, dim=-1)[1].squeeze().item()
                 pred_label = sense_keys[pred_idx]
                 preds.append(pred_label)
