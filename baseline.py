@@ -1,3 +1,11 @@
+"""
+우리말샘 사전을 기준으로 단어의 의미가 2개 이상인 단어에 대하여,
+훈련 데이터셋 기준 최고 빈도 의미를 매핑하는 Baseline Model.
+(빈도가 동일한 의미가 2개 이상일 경우 랜덤 샘플링)
+
+Seed=42 일 때 정확도 86.232% 달성
+"""
+
 import random
 import pickle
 from collections import defaultdict
@@ -31,6 +39,7 @@ if __name__ == '__main__':
     np.random.seed(42)
     random.seed(42)
     
+    # 전처리된 데이터셋 로드
     with open('Data/processed_train.pickle', 'rb') as f:
         train_data = pickle.load(f)
     with open('Data/processed_eval.pickle', 'rb') as f:
@@ -44,16 +53,17 @@ if __name__ == '__main__':
     # 최다 빈도 의미 단어 추출
     train_count_d_max = {}
     for word, sample in train_count_d.items():
-        train_count_d_max[word] = [word for word, value in sample.items() if value==max(sample.values())]
+        train_count_d_max[word] = [sense_no for sense_no, value in sample.items() \
+                                   if value==max(sample.values())]
         
     # 우리말샘 기준 다의어 추출
     multiwords = set(word for word, d in urimal_dict.items() if len(d['definition'])>1)
     
-    # 평가 데이터셋의 의미번호 추출
+    # 평가 데이터셋의 의미번호 추출 (명사 한정)
     result = []
     for sent in eval_data:
-        result += [sense_no for word, pos, sense_no in sent if\
-                  pos in ('NNP', 'NNG', 'NNB', 'NP') and word in multiwords]
+        result += [sense_no for word, pos, sense_no in sent \
+                   if pos in ('NNP', 'NNG', 'NNB', 'NP') and word in multiwords]
         
     # 최다 빈도 기준 의미번호 산출
     # 이때 빈도가 같은 의미가 있는 단어들은 랜덤 샘플링
@@ -64,7 +74,7 @@ if __name__ == '__main__':
                 try:
                     sense_no = random.choice(train_count_d_max[word])
 #                     sense_no = train_count_d_max[word][0]
-                except KeyError:
+                except KeyError: # 훈련셋에 없었던 단어는 -1 입력 
                     sense_no = -1
                 preds.append(sense_no)    
     
