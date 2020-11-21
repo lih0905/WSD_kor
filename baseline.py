@@ -11,6 +11,7 @@ import pickle
 from collections import defaultdict
 
 import numpy as np
+from sklearn.metrics import f1_score
 
 def count_meaning(data):
     """문장들이 주어지면 단어별로 의미의 등장횟수를 카운트하여 딕셔너리 반환
@@ -80,4 +81,6 @@ if __name__ == '__main__':
     
     # 최종 정확도 출력
     eval_acc = np.mean(np.array(result) == np.array(preds))
-    print(f"의미의 빈도 기반으로 산출한 정확도는 {eval_acc*100:.3f}%입니다.")
+    eval_f1 = f1_score(result, preds, average='weighted')
+    print(f"의미의 빈도 기반으로 산출한 정확도는 {eval_acc:.5f}, F1 점수는 {eval_f1:.5f} 입니다.")
+    
