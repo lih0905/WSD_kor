@@ -29,11 +29,11 @@ parser.add_argument('--grad-norm', type=float, default=1.0)
 parser.add_argument('--lr', type=float, default=0.0001)
 # parser.add_argument('--warmup', type=int, default=10000)
 parser.add_argument('--multigpu', action='store_true')
-parser.add_argument('--context-max-length', type=int, default=128)
+parser.add_argument('--context-max-length', type=int, default=192)
 parser.add_argument('--gloss-max-length', type=int, default=128)
-parser.add_argument('--epochs', type=int, default=1)
-parser.add_argument('--context-bsz', type=int, default=4)
-parser.add_argument('--gloss-bsz', type=int, default=32)
+parser.add_argument('--epochs', type=int, default=3)
+parser.add_argument('--context-bsz', type=int, default=16)
+parser.add_argument('--gloss-bsz', type=int, default=64)
 parser.add_argument('--encoder-name', type=str, default='distilkobert')
 # 	choices=['bert-base', 'bert-large', 'roberta-base', 'roberta-large'])
 parser.add_argument('--checkpoint', type=str, default='checkpoint',
@@ -165,6 +165,7 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, gloss_b
         
         if save_each > 1 and i > 0 and i % save_each == 0:
             logger.info(f'Save checkpoint at {i}-th iteration.')
+            logger.info(f'Loss at save checkpoint is {total_loss/(i+1):.4f}')
             torch.save(model, model_path+str(i)) 
     return model, optimizer, total_loss
 
@@ -192,13 +193,15 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
                 if key not in gloss_dict.keys() and key.replace("·", "") in gloss_dict.keys():
                     key = key.replace("·", "")
                 elif key not in gloss_dict.keys():
+                    preds.append(-1)
                     continue
 
                 try:
                     gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[key]
                 except:
-                    print(j, (key, label))
-                    print(example_keys, labels, indices)
+                    # print(j, (key, label))
+                    # print(example_keys, labels, indices)
+                    preds.append(-1)
                     continue
 
                 if multigpu:

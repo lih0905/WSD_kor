@@ -23,7 +23,7 @@ from model import BiEncoderModel
 parser = argparse.ArgumentParser(description='다의어 분리 모델 실험')
 
 #training arguments
-parser.add_argument('--model_date', type=str, default='distilkobert_202011152034')
+parser.add_argument('--model_date', type=str, default='distilkobert_202011200028')
 parser.add_argument('--text', type=str, required=True)
 
 mecab = Mecab()
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     model.to('cuda')    
     
     model_list = os.listdir(f"checkpoint/{args.model_date}") 
-    model_fname = model_list[-1]
+    model_fname = 'saved_checkpoint_16825'
    
     model = torch.load(f"checkpoint/{args.model_date}/{model_fname}") 
     model.eval()
