@@ -15,6 +15,13 @@
 * Baseline : 훈련 데이터셋 기준 각 단어별 최고 빈출 단어로 추론
 * [Gloss Informed Bi-encoders for WSD](https://github.com/facebookresearch/wsd-biencoders) : 
 
+## 결과 
+
+| Model      	| Accuracy 	| F1(weighted) 	|
+|------------	|----------	|--------------	|
+| Baseline   	| 0.86232  	| 0.86304      	|
+| Bi-encoder 	|          	|              	|
+
 ## 사용법
 
 * 전처리
@@ -27,6 +34,10 @@ python preprocess.py
 
 ```python
 python baseline.py
+```
+
+```
+의미의 빈도 기반으로 산출한 평가 데이터의 정확도는 0.86232, F1 점수는 0.86304 입니다.
 ```
 
 * Bi-encoder 모델 훈련
