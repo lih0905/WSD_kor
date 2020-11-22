@@ -10,6 +10,7 @@ import os
 
 import tqdm
 import numpy as np
+from sklearn.metrics import f1_score
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -255,6 +256,9 @@ def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, epochs, mode
         logger.info(f"Checkpoint saved at {args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
         args.checkpoint_count += 1
 
+def evaluate(eval_data, eval_gloss_dict, epochs, model):
+    
+    
 
 if __name__ == "__main__":
     args = parser.parse_args()
