@@ -7,8 +7,10 @@
 import torch
 from torch.utils.data import Dataset
 
+from konlpy.tag import Mecab
 from tokenization_kobert import KoBertTokenizer
 
+mecab = Mecab()
 
 # 최대 길이로 맞춰주는 함수 구현
 def normalize_length(ids, attn_mask, o_mask, max_len, pad_id):
@@ -37,6 +39,8 @@ def tokenize_glosses(text_arr, tokenizer, max_len):
     glosses = []
     masks = []
     for text in text_arr:
+        # Mecab tokenizer 추가
+        text = ' '.join(mecab.morphs(text))
         encoded_tensors = tokenizer.encode_plus(text)
         g_ids = [torch.tensor([[x]]) for x in encoded_tensors['input_ids']]
         g_attn_mask = encoded_tensors['attention_mask']
