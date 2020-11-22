@@ -5,44 +5,25 @@
 """
 
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
-from konlpy.tag import Mecab
 from tokenization_kobert import KoBertTokenizer
 
-# 최대 길이로 맞춰주는 함수 구현
-def normalize_length(ids, attn_mask, o_mask, max_len, pad_id):
-    if max_len == -1:
-        return ids, attn_mask, o_mask
-    else:
-        if len(ids) < max_len:
-            while len(ids) < max_len:
-                ids.append(torch.tensor([[pad_id]]))
-                attn_mask.append(0)
-                o_mask.append(-1)
-        else:
-            ids = ids[:max_len-1]+[ids[-1]]
-            attn_mask = attn_mask[:max_len]
-            o_mask = o_mask[:max_len]
 
-        assert len(ids) == max_len
-        assert len(attn_mask) == max_len
-        assert len(o_mask) == max_len
-        
-        return ids, attn_mask, o_mask
-
-
+### Gloss Data Loader 
 
 # 단어별 가중치 생성
-def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
+def dataloader_glosses(data_df, tokenizer, gloss_dict, max_len=-1):
     sense_glosses = {}
     sense_weights = {}
 
-    gloss_lengths = []
+    for wsd_list in data_df['WSD']:
+        wsd_list = eval(wsd_list)
+        for wsd_d in wsd_list:
+            word = wsd_d['word']
+            pos = wsd_d['pos']
+            sense_no = wsd_d['sense_id']
 
-    for form, WSD in data:
-    # sent : 문장, WSD : [wsd_d...]
-        for word, pos, sense_no in sent:
             if sense_no == -1 or sense_no in (777, 888, 999):
                 continue # 다의어가 아닌 경우나 고유명사인 경우는 패스
             else:
@@ -53,25 +34,25 @@ def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
                     try: 
                         gloss_arr = gloss_dict[word]['definition']
                         if len(gloss_arr) >= 1:
-                                sensekey_arr = gloss_dict[word]['sense_no']
+                            sensekey_arr = gloss_dict[word]['sense_no']
 
-                                #preprocess glosses into tensors
-                                res = tokenizer(gloss_arr, return_tensors='pt', padding='max_length', max_length=max_len)
-                                gloss_ids, gloss_masks = res['input_ids'], res['attention_mask']
-                                sense_glosses[key] = (gloss_ids, gloss_masks, sensekey_arr)
-                                # sense_glosses[key] = ( len(sensekey_arr) * max_len, len(sensekey_arr) * max_len, len(sensekey_arr) )
+                            #preprocess glosses into tensors
+                            res = tokenizer(gloss_arr, return_tensors='pt', padding='max_length', max_length=max_len)
+                            gloss_ids, gloss_masks = res['input_ids'], res['attention_mask']
+                            sense_glosses[key] = (gloss_ids, gloss_masks, sensekey_arr)
+                            # sense_glosses[key] = ( len(sensekey_arr) * max_len, len(sensekey_arr) * max_len, len(sensekey_arr) )
 
-                                #intialize weights for balancing senses
-                                sense_weights[key] = [0]*len(gloss_arr)
-                                w_idx = sensekey_arr.index(sense_no)
-                                sense_weights[key][w_idx] += 1
+                            #intialize weights for balancing senses
+                            sense_weights[key] = [0]*len(gloss_arr)
+                            w_idx = sensekey_arr.index(sense_no)
+                            sense_weights[key][w_idx] += 1
                         else: # 사전에 단어 없는 경우 넘어감
                             pass
                     except ValueError:
                         pass # 의미 번호가 제대로 매핑되어 있지 않은 경우
                     except KeyError:
                         pass
-                            
+
                 else: # 이미 단어장에 등록된 단어면 가중치만 업데이트
                     try:
                         w_idx = sense_glosses[key][2].index(sense_no)
@@ -80,7 +61,7 @@ def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
                         pass # 의미 번호가 제대로 매핑되어 있지 않은 경우
                     except KeyError:
                         pass # 의미 번호가 제대로 매핑되어 있지 않은 경우
-                
+
     # 가중치 정규화
     for key in sense_weights:
         total_w = sum(sense_weights[key])
@@ -88,88 +69,127 @@ def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
 
     return sense_glosses, sense_weights
 
-# Context data loader 구현
-def dataloader_context(text_data, tokenizer, bsz=1, max_len=-1):
-    if max_len == -1: assert bsz==1 #otherwise need max_length for padding
+### Context Data Loader 
 
-    context_ids = []
-    context_attn_masks = []
-
-    example_keys = []
-
-    context_output_masks = []
+def tokenizer_wsd(tokenizer, sent, wsd, max_len):
+    """문장을 토크나이즈 한 후 WSD에 등장하는 단어들의 의미를 마스킹"""
     
-    labels = []
-    indices = []
+    # 단어별로 ID 지정
+    for i in range(len(wsd)):
+        wsd[i]['word_id'] = i+1
+        
+    tokens = []
+    word_pos = []
+    sense_ids = []
+    word_ids = []
+    sent_e = sent
+    tkd = tokenizer.tokenize(sent)
 
-    #tensorize data
-    for sent in text_data:
-        # 시작 토큰 지정
-        c_ids = [torch.tensor([[tokenizer.cls_token_id]])] #cls token aka sos token, returns a list with index
-        o_masks = [-1] # 다의어 마스킹
-        sent_keys = []
-        sent_labels = []
-        sent_indices = []
+    for i, tk in enumerate(tkd):
+        if i == max_len:
+            break
+            
+        diff = len(sent) - len(sent_e)
+        if tk.startswith('▁'):
+            word = tk[1:]
+        else:
+            word = tk
+            
+        # '…'가 토크나이즈 과정에서 '...'로 바뀌므로 예외 처리
+        try:
+            start_id = sent_e.index(word) + diff
+        except ValueError:
+            if word == '...': word = '…'
+            start_id = sent_e.index(word) + diff
+            
+        end_id = start_id + len(word)
+        sent_e = sent[end_id:]
+        tokens.append(tk)
+    
+        for w_d in wsd:
+            if start_id == w_d['begin']: 
+                # 토크나이즈 된 첫번째 토큰일 경우
+                # 단어+pos, sense_id, word_id 모두 기록
+                if w_d['sense_id'] not in (777, 888, 999):
+                    word_pos.append(w_d['word']+"_"+w_d['pos'])
+                    sense_ids.append({'word_id':w_d['word_id'], 'sense_id':w_d['sense_id']})
+                    word_ids.append(w_d['word_id'])
+                    break
+            elif start_id > w_d['begin'] and end_id <= w_d['end']:
+                # 두번째 이후 토큰일 경우 word_id만 계속해서 기록
+                if w_d['sense_id'] not in (777, 888, 999):
+                    word_ids.append(w_d['word_id'])
+                    break
+        else:
+            word_ids.append(-1)
+    
+    if len(tokens) < max_len:
+        fill_len = max_len - len(tokens)
+        tokens += [""] * fill_len
+        word_ids += [-1] * fill_len
+        
+    assert len(tokens) == max_len
+    
+    res = {'tokens':tokens, 'words':word_pos, 'sense_ids':sense_ids, 'word_ids':word_ids}
 
-        # 각 단어에 대해서
-        for idx, (word, pos, sense_no) in enumerate(sent):
-            # 각 단어를 토크나이즈
-            word_ids = [torch.tensor([[x]]) for x in tokenizer.encode(word.lower(), add_special_tokens=False)]
-            c_ids.extend(word_ids)
+    return res
 
-            # 다의어이면서 고유명사가 아닌 경우
-            if sense_no != -1 and sense_no not in (777, 888, 999):
-                # 다의어 위치 마킹
-                o_masks.extend([idx]*len(word_ids))
-                #track example instance keys to get glosses
-                ex_key = word + '_' + pos
-                sent_keys.append(ex_key)
-                sent_labels.append(sense_no)
-                sent_indices.append(idx)
-            else:
-                #mask out output of context encoder for WSD task (not labeled)
-                o_masks.extend([-1]*len(word_ids))
 
-            #break if we reach max len
-            if max_len != -1 and len(c_ids) >= (max_len-1):
-                break
+class ContextDataset(Dataset):
+    """데이터프레임 형태의 데이터를 읽는 데이터셋"""
 
-        # EOS 토큰 추가
-        c_ids.append(torch.tensor([[tokenizer.sep_token_id]])) 
-        c_attn_mask = [1]*len(c_ids)
-        o_masks.append(-1)
-        c_ids, c_attn_masks, o_masks = normalize_length(c_ids, c_attn_mask, o_masks, max_len, pad_id=tokenizer.pad_token_id)
+    def __init__(self, data_df):
+        self.data = data_df
 
-#         y = torch.tensor([1]*len(sent_insts), dtype=torch.float)
-        #not including examples sentences with no annotated sense data
-        if len(sent_keys) > 0:
-            context_ids.append(torch.cat(c_ids, dim=-1))
-            context_attn_masks.append(torch.tensor(c_attn_masks).unsqueeze(dim=0))
-            context_output_masks.append(torch.tensor(o_masks).unsqueeze(dim=0))
-            example_keys.append(sent_keys)
-            labels.append(sent_labels)
-            indices.append(sent_indices)
+    def __len__(self):
+        return len(self.data)
 
-    #package data
-    data = list(zip(context_ids, context_attn_masks, context_output_masks, example_keys, labels, indices))
+    def __getitem__(self, index):
+        return self.data['form'][index], self.data['WSD'][index]
 
-    #batch data if bsz > 1
-    if bsz > 1:
-#         print('Batching data with bsz={}...'.format(bsz))
-        batched_data = []
-        for idx in range(0, len(data), bsz):
-            if idx+bsz <=len(data): b = data[idx:idx+bsz]
-            else: b = data[idx:]
-            context_ids = torch.cat([x for x,_,_,_,_,_ in b], dim=0)
-            context_attn_mask = torch.cat([x for _,x,_,_,_,_ in b], dim=0)
-            context_output_mask = torch.cat([x for _,_,x,_,_,_ in b], dim=0)
-            example_keys = []
-            for _,_,_,x,_,_ in b: example_keys.extend(x)
-            labels = []
-            for _,_,_,_,x,_ in b: labels.extend(x)
-            indices = []
-            for _,_,_,_,_,x in b: indices.extend(x)
-            batched_data.append((context_ids, context_attn_mask, context_output_mask, example_keys, labels, indices))
-        return batched_data
-    else:  
-        return data
+
+class BatchGenerator:
+    """데이터로더가 후처리과정에서 토크나이즈 및 필요 정보 기록하는 함수"""
+    def __init__(self, tokenizer, max_len):
+        self.tokenizer = tokenizer
+        self.max_len = max_len
+        
+    def __call__(self, batch):
+
+        if isinstance(batch[0], str):
+            sentences = [batch[0]]
+            wsds = [batch[1]]
+        elif isinstance(batch, list):
+            sentences = [item[0] for item in batch]
+            wsds = [item[1] for item in batch]
+        else:
+            sentences = list(item for item in batch[0])
+            wsds = list(item for item in batch[1])
+
+        res = self.tokenizer(sentences, 
+                                    padding='max_length', 
+                                    max_length=self.max_len,
+                                    truncation=True,
+                                    return_tensors='pt')
+        context_ids = res['input_ids']
+        context_attn_masks = res['attention_mask']
+        
+        tokd_wsd = [tokenizer_wsd(tokenizer, sentence, eval(wsd), self.max_len) \
+                    for sentence, wsd in zip(sentences, wsds)]
+        
+        context_output_masks = torch.tensor([tokd['word_ids'] for tokd in tokd_wsd])
+
+        sense_ids = [tokd['sense_ids'] for tokd in tokd_wsd]
+        word_pos = [tokd['words'] for tokd in tokd_wsd]
+        
+        return context_ids, context_attn_masks, context_output_masks, word_pos, sense_ids
+    
+def get_dataloader(dataset, batch_generator, batch_size=4):
+    """데이터 로더"""
+    data_loader = DataLoader(dataset, 
+                              batch_size=batch_size, 
+                              shuffle=False, 
+                              collate_fn=batch_generator,
+                              num_workers=4)
+    return data_loader
+    
