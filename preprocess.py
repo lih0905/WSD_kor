@@ -1,15 +1,15 @@
 """
-국립국어원 말뭉치 데이터를 불러온 후 다음 형태로 변환한다.
+다운로드한 [우리말샘](https://opendict.korean.go.kr/) 사전을 json 파일 형태로 변환한다.
 
-    [(단어1, 품사1, 의미순번1), (단어2, 품사2, 의미순번2), ... ]
-    * 다의어가 아닌 경우는 의미순번 = -1
+또한 국립국어원 말뭉치 데이터를 불러온 후 다음 형태로 변환하여 csv 파일로 저장한다.
 
-또한 다운로드한 [우리말샘](https://opendict.korean.go.kr/) 사전을 CSV 파일 형태로 변환한다.
+    [(문장1, 다의어1), (문장2, 다의어2), ...]
+    
+이때 다의어 중 우리말샘 기준으로 의미가 1개인 단어는 삭제한다.
 """
 
 import os
 import json
-import pickle
 import xml.etree.ElementTree as elemTree
 
 import pandas as pd
@@ -18,26 +18,31 @@ data_path = 'Data'
 dict_path = 'Dict'
 fname1 = 'NXLS1902008050.json'
 fname2 = 'SXLS1902008030.json'
-train_fname = 'processed_train.pickle'
-eval_fname = 'processed_eval.pickle'
-dict_fname = 'processed_dictionary.pickle'
+train_fname = 'processed_train.csv'
+eval_fname = 'processed_eval.csv'
+dict_fname = 'processed_dictionary.json'
 
-def process(sent_input):
-    """말뭉치 데이터의 문장이 주어졌을 때 다음 형식으로 변환
-    [(단어1, 품사1, 의미순번1), (단어2, 품사2, 의미순번2), ... ]
+
+def process(sent_input, multiwords_set):
+    """말뭉치 데이터의 문장이 주어졌을 때 문장과 WSD만 남기며, 또한 다의어 중
+    우리말 사전 기준으로 의미 갯수가 2개 이상인 것만 남긴다.
+    
+    input : dictionary(key=['id', 'form', 'word', 'morpheme', 'WSD'])
+    output : dictionary(key=['form', 'WSD'])
     """
-    result = []
-    for word_d in sent_input['morpheme']:
-        # {'id': 1, 'form': '2012', 'label': 'SN', 'word_id': 1, 'position': 1},
-        for wsd_d in sent_input['WSD']:
-            # {'word': '년', 'sense_id': 2, 'pos': 'NNB', 'begin': 4, 'end': 5, 'word_id': 1}
-            if word_d['form'] == wsd_d['word'] and word_d['word_id'] == wsd_d['word_id'] and word_d['label'] == wsd_d['pos']:
-                # 이 경우 (단어, 품사, 의미순번) 
-                result.append((word_d['form'], word_d['label'], wsd_d['sense_id']))
-                break
-        else: # 다의어가 아닌 경우는 의미순번을 제외
-            result.append((word_d['form'], word_d['label'], -1))
-    return result
+    
+    sent_input2 = sent_input.copy()
+    del sent_input2['id']
+    del sent_input2['word']
+    del sent_input2['morpheme']
+    
+    WSD_multiwords = []
+    for wsd_d in sent_input2['WSD']:
+        if wsd_d['word'] in multiwords_set:
+            WSD_multiwords.append(wsd_d)
+    sent_input2['WSD'] = WSD_multiwords
+    
+    return sent_input2
 
 def dict_to_data(dirname):
     """우리말샘 사전 데이터를 딕셔너리로 변환
@@ -77,6 +82,21 @@ def dict_to_data(dirname):
 
 if __name__ == "__main__":
 
+
+    print("우리말샘 사전 데이터 로딩...")
+    # 우리말샘 사전 데이터 불러온 후 json 파일로 저장
+    dict_data = dict_to_data(dict_path)
+    
+    print(f'사전 데이터는 총 {len(dict_data)}개 입니다.')
+    
+    print("우리말샘 사전 데이터 저장...")
+    # 변환 파일 저장
+    with open(os.path.join(dict_path, dict_fname), 'w') as f:
+        json.dump(dict_data, f)
+    
+    # 다의어 추출
+    multiwords_set = set(word for word, d in dict_data.items() if len(d['definition'])>1)
+
     print("말뭉치 데이터 로딩...")
     with open(os.path.join(data_path, fname1), "r") as json_file:
         f1 = json.load(json_file)
@@ -95,38 +115,21 @@ if __name__ == "__main__":
     eval_results = []
     # 문맥 데이터 중 10번째마다 eval_data로 저장,
     # 그외는 train_data로 저장
-    for i, paragraph in enumerate(data):
-        para_result = []
+    i = 0
+    for paragraph in data:
         for sentence in paragraph['sentence']:
-            # 일부 오류나는 라인이 있어 강제로 패스
-            try:
-                para_result.append(process(sentence))
-            except:
-                break
-        # 오류가 나지 않은 문맥만 추가
-        else:
+            i += 1
             if i % 10 != 0:
-                train_results += para_result
+                train_results.append(process(sentence, multiwords_set))
             elif i % 10 == 0:
-                eval_results += para_result
+                eval_results.append(process(sentence, multiwords_set))
+
+    train_df = pd.DataFrame(train_results)
+    eval_df = pd.DataFrame(eval_results)
 
     print("변환된 말뭉치 데이터 파일로 저장...")
-    # 완료된 데이터를 pickle 데이터로 저장
-    with open(os.path.join(data_path, train_fname), "wb") as train_f:
-        pickle.dump(train_results, train_f)
-    with open(os.path.join(data_path, eval_fname), "wb") as eval_f:
-        pickle.dump(eval_results, eval_f)            
-        
-        
-    print("우리말샘 사전 데이터 로딩...")
-    # 우리말샘 사전 데이터 불러온 후 CSV 파일로 저장
-    dict_data = dict_to_data(dict_path)
-    
-    print(f'사전 데이터는 총 {len(dict_data)}개 입니다.')
-    
-    print("우리말샘 사전 데이터 저장...")
-    # 변환 파일 저장
-    with open(os.path.join(dict_path, dict_fname), 'wb') as f:
-        pickle.dump(dict_data, f)
-    
+    # 완료된 데이터를 csv 파일로 저장
+    train_df.to_csv(os.path.join(data_path, train_fname), index=False)
+    eval_df.to_csv(os.path.join(data_path, eval_fname), index=False)
+       
     print("전처리가 끝났습니다.")
