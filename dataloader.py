@@ -10,8 +10,6 @@ from torch.utils.data import Dataset
 from konlpy.tag import Mecab
 from tokenization_kobert import KoBertTokenizer
 
-mecab = Mecab()
-
 # 최대 길이로 맞춰주는 함수 구현
 def normalize_length(ids, attn_mask, o_mask, max_len, pad_id):
     if max_len == -1:
@@ -34,32 +32,16 @@ def normalize_length(ids, attn_mask, o_mask, max_len, pad_id):
         return ids, attn_mask, o_mask
 
 
-# Gloss loader
-def tokenize_glosses(text_arr, tokenizer, max_len):
-    glosses = []
-    masks = []
-    for text in text_arr:
-        # Mecab tokenizer 추가
-        text = ' '.join(mecab.morphs(text))
-        encoded_tensors = tokenizer.encode_plus(text)
-        g_ids = [torch.tensor([[x]]) for x in encoded_tensors['input_ids']]
-        g_attn_mask = encoded_tensors['attention_mask']
-        g_fake_mask = [-1] * len(g_ids)
-        g_ids, g_attn_mask, _ = normalize_length(g_ids, g_attn_mask, g_fake_mask, max_len, pad_id=tokenizer.pad_token_id)
-        g_ids = torch.cat(g_ids, dim=-1)
-        g_attn_mask = torch.tensor(g_attn_mask)
-        glosses.append(g_ids)
-        masks.append(g_attn_mask)
-    return glosses, masks
 
-# creates a sense label/ gloss dictionary for training/using the gloss encoder
+# 단어별 가중치 생성
 def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
     sense_glosses = {}
     sense_weights = {}
 
     gloss_lengths = []
 
-    for sent in data:
+    for form, WSD in data:
+    # sent : 문장, WSD : [wsd_d...]
         for word, pos, sense_no in sent:
             if sense_no == -1 or sense_no in (777, 888, 999):
                 continue # 다의어가 아닌 경우나 고유명사인 경우는 패스
@@ -74,9 +56,8 @@ def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
                                 sensekey_arr = gloss_dict[word]['sense_no']
 
                                 #preprocess glosses into tensors
-                                gloss_ids, gloss_masks = tokenize_glosses(gloss_arr, tokenizer, max_len)
-                                gloss_ids = torch.cat(gloss_ids, dim=0)
-                                gloss_masks = torch.stack(gloss_masks, dim=0)
+                                res = tokenizer(gloss_arr, return_tensors='pt', padding='max_length', max_length=max_len)
+                                gloss_ids, gloss_masks = res['input_ids'], res['attention_mask']
                                 sense_glosses[key] = (gloss_ids, gloss_masks, sensekey_arr)
                                 # sense_glosses[key] = ( len(sensekey_arr) * max_len, len(sensekey_arr) * max_len, len(sensekey_arr) )
 
@@ -91,8 +72,7 @@ def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
                     except KeyError:
                         pass
                             
-                else:
-                    #update sense weight counts
+                else: # 이미 단어장에 등록된 단어면 가중치만 업데이트
                     try:
                         w_idx = sense_glosses[key][2].index(sense_no)
                         sense_weights[key][w_idx] += 1
@@ -101,7 +81,7 @@ def dataloader_glosses(data, tokenizer, gloss_dict, max_len=-1):
                     except KeyError:
                         pass # 의미 번호가 제대로 매핑되어 있지 않은 경우
                 
-    #normalize weights
+    # 가중치 정규화
     for key in sense_weights:
         total_w = sum(sense_weights[key])
         sense_weights[key] = torch.FloatTensor([total_w/x if x !=0 else 0 for x in sense_weights[key]])
