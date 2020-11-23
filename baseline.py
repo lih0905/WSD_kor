@@ -14,7 +14,6 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score
-from konlpy.tag import Mecab
 
 def count_meaning(df):
     """문장들이 주어지면 단어별로 의미의 등장횟수를 카운트하여 딕셔너리 반환
@@ -41,8 +40,6 @@ def count_meaning(df):
 
 if __name__ == '__main__':
     
-    mecab = Mecab()
-
     # SEED 고정
     np.random.seed(42)
     random.seed(42)

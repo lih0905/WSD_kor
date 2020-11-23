@@ -38,7 +38,7 @@ def process(sent_input, multiwords_set):
     
     WSD_multiwords = []
     for wsd_d in sent_input2['WSD']:
-        if wsd_d['word'] in multiwords_set:
+        if wsd_d['word'] in multiwords_set and wsd_d['sense_id'] not in (777,888,999):
             WSD_multiwords.append(wsd_d)
     sent_input2['WSD'] = WSD_multiwords
     
@@ -118,11 +118,15 @@ if __name__ == "__main__":
     i = 0
     for paragraph in data:
         for sentence in paragraph['sentence']:
-            i += 1
-            if i % 10 != 0:
-                train_results.append(process(sentence, multiwords_set))
-            elif i % 10 == 0:
-                eval_results.append(process(sentence, multiwords_set))
+            sent = process(sentence, multiwords_set)
+            if len(sent['WSD']) > 0:
+                i += 1
+                if i % 10 != 0:
+                    train_results.append(sent)
+                elif i % 10 == 0:
+                    eval_results.append(sent)
+            else:
+                continue
 
     train_df = pd.DataFrame(train_results)
     eval_df = pd.DataFrame(eval_results)
