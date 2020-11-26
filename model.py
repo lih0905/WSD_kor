@@ -102,8 +102,12 @@ class ContextEncoder(nn.Module):
                 example_arr.append(res)
             # batch_size * (다의어 수, hidden_dim)
 
-        context_output = torch.cat(example_arr, dim=0)
-        # (배치 내 다의어 수, hidden_dim)
+        try:
+            context_output = torch.cat(example_arr, dim=0)
+            # (배치 내 다의어 수, hidden_dim)
+        except RuntimeError:
+            # 배치 내 다의어가 하나도 없을 경우 context_output이 empty
+            return None       
 
         return context_output
     

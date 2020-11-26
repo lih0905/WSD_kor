@@ -72,6 +72,8 @@ def glosses_dataloader(data_df, tokenizer, gloss_dict, max_len=-1):
 def tokenizer_wsd(tokenizer, sent, wsd, max_len):
     """문장을 토크나이즈 한 후 WSD에 등장하는 단어들의 의미를 마스킹"""
     
+    # 등장순서대로 배열되어 있지 않은 다의어들이 있어 재정렬...
+    wsd = sorted(wsd, key=lambda x:x['begin'])
     # 단어별로 ID 지정
     for i in range(len(wsd)):
         wsd[i]['word_id'] = i+1
@@ -152,7 +154,7 @@ class ContextDataset(Dataset):
     """데이터프레임 형태의 데이터를 읽는 데이터셋"""
 
     def __init__(self, data_df):
-        self.data = data_df
+        self.data = data_df.reset_index(drop=True)
 
     def __len__(self):
         return len(self.data)
@@ -189,7 +191,6 @@ class BatchGenerator:
         
         tokd_wsd = [tokenizer_wsd(self.tokenizer, sentence, eval(wsd), self.max_len) \
                     for sentence, wsd in zip(sentences, wsds)]
-        
         context_output_masks = torch.tensor([tokd['word_ids'] for tokd in tokd_wsd])
 
         sense_ids = [tokd['sense_ids'] for tokd in tokd_wsd]
