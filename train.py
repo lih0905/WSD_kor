@@ -294,10 +294,10 @@ def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, model, optim
         logger.info(f'\tTrain Loss: {total_loss:.3f}')
 #         logger.info(f'\tEval. Acc: {pred_acc*100:.2f}%')
     
-#         # Saving
-#         torch.save(model, f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
-#         logger.info(f"Checkpoint saved at {args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
-#         args.checkpoint_count += 1
+        # Saving
+        torch.save(model, f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
+        logger.info(f"Checkpoint saved at {args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
+        args.checkpoint_count += 1
 
 def evaluate(eval_data, eval_gloss_dict, epochs, model):
     pass
