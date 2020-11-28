@@ -170,7 +170,6 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, model_p
             
     return model, optimizer, total_loss
 
-
 def predict(eval_data, gloss_dict, model, multigpu=False):
     model.eval()
     preds = []
@@ -187,29 +186,34 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
                 
             context_output = model.context_forward(context_ids, context_attn_mask, context_output_mask)
             
-            # 다의어가 하나도 없는 경우 None을 리턴하므로 패스
-            if context_output is None:
-                continue
+#             # 다의어가 하나도 없는 경우 None을 리턴하므로 패스
+#             if context_output is None:
+#                 continue
 
             words_org = chain(*words)
             sense_ids_org = chain(*[list(sense_d.values()) for sense_d in sense_ids])
             
-            words = []
-            for w, v in zip(words_org, sense_ids_org):
-                if v != -1:
-                    words.append(w)
-                
-            # 배치 내 순번 / 단어 순번 저장
-            sense_candidates = []
-            for i in range(len(sense_ids)):
-                for j in sense_ids[i].keys():
-                    sense_candidates.append([i,j,-1])
+#             words = []
+#             for w, v in zip(words_org, sense_ids_org):
+#                 if v != -1:
+#                     words.append(w)
+                    
+#             # 다의어가 하나도 없는 경우
+#             if len(words) == 0:
+#                 continue
+                    
+#             # 배치 내 순번 / 단어 순번 저장
+#             sense_candidates = []
+#             for i in range(len(sense_ids)):
+#                 for j in sense_ids[i].keys():
+#                     sense_candidates.append([i,j,-1])
             
-            assert context_output.size(0) == len(list(words)), "context_output.size(0) != len(words)"
-#             assert context_output.size(0) == len(sense_candidates)
+#             assert context_output.size(0) == len(list(words)), "context_output.size(0) != len(words)"
+# #             assert context_output.size(0) == len(sense_candidates)
             
             # 의미 인코더 계산
-            for j, (output, word) in enumerate(zip(context_output.split(1, dim=0), words)):
+            i = 0
+            for word, sense_id in zip(words_org, sense_ids_org):
                 # 의미 임베딩
                 # "시·군·구" 같은 단어는 우리말사전에 "시군구"로 등록되어 있으므로
                 # 다음처럼 변환해보고, 그럼에도 단어가 사전에 없는 경우는 넘어갈 것
@@ -217,10 +221,17 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
                     word = word.replace("·", "")
                 elif word not in gloss_dict.keys():
                     logger.debug(f"'{word}'는 사전에 없으므로 평가되지 않습니다.'")
+                    preds.append(-1)
                     continue
-
+                    
+                if sense_id == -1:
+                    logger.debug(f"'{word}'는 토크나이즈되지 않았으므로 평가되지 않습니다.'")
+                    preds.append(-1)
+                    continue
+                    
+                output = context_output[i].unsqueeze(0)
+#                 print("Output shape : ", output.shape)
                 gloss_ids, gloss_attn_mask, sense_keys = gloss_dict[word]
-
 
                 if multigpu:
                     gloss_ids = gloss_ids.to(gloss_device)
@@ -237,12 +248,12 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
                     output = output.cpu()
                     gloss_output = gloss_output.cpu()                    
                 output = torch.mm(output, gloss_output)
+#                 print("output :", output)
                 pred_idx = output.topk(1, dim=-1)[1].squeeze().item()
                 pred_label = sense_keys[pred_idx]
                 # sense_candidates의 마지막 자리에 후보를 기록
-                sense_candidates[j][-1] = pred_label
-                
-            preds.append(sense_candidates)
+                i += 1
+                preds.append(pred_label)
                 
     return preds
         
