@@ -10,12 +10,21 @@
 
 import os
 import json
+import argparse
+import pickle
 import xml.etree.ElementTree as elemTree
 
 import pandas as pd
 
-data_path = 'Data'
-dict_path = 'Dict'
+# Argparse Setting
+parser = argparse.ArgumentParser(description='전처리 파라미터 설정')
+
+#training arguments
+parser.add_argument('--data', action='store_true')
+parser.add_argument('--data-path', type=str, default='./Data')
+parser.add_argument('--dict', action='store_true')
+parser.add_argument('--dict-path', type=str, default='./Dict')
+
 fname1 = 'NXLS1902008050.json'
 fname2 = 'SXLS1902008030.json'
 train_fname = 'processed_train.csv'
