@@ -220,12 +220,12 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
                 if word not in gloss_dict.keys() and word.replace("·", "") in gloss_dict.keys():
                     word = word.replace("·", "")
                 elif word not in gloss_dict.keys():
-                    logger.debug(f"'{word}'는 사전에 없으므로 평가되지 않습니다.'")
+#                     logger.debug(f"'{word}'는 사전에 없으므로 평가되지 않습니다.'")
                     preds.append(-1)
                     continue
                     
                 if sense_id == -1:
-                    logger.debug(f"'{word}'는 토크나이즈되지 않았으므로 평가되지 않습니다.'")
+#                     logger.debug(f"'{word}'는 토크나이즈되지 않았으므로 평가되지 않습니다.'")
                     preds.append(-1)
                     continue
                     
