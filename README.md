@@ -17,7 +17,9 @@
 ## 모델
 
 * Baseline : 훈련 데이터셋 기준 각 단어별 최고 빈출 단어로 추론
-* [Gloss Informed Bi-encoders for WSD](https://github.com/facebooqkresearch/wsd-biencoders) : 
+* [Gloss Informed Bi-encoders for WSD](https://github.com/facebookresearch/wsd-biencoders) : 
+
+![Model](https://github.com/facebookresearch/wsd-biencoders/raw/master/docs/wsd_biencoder_architecture.jpg)
 
 ## 결과 
 
@@ -26,7 +28,16 @@
 | Baseline   	| 0.85949  	| 0.85864      	|
 | Bi-encoder 	| 0.88327  	| 0.88286       |
 
-## 사용법
+## Requirements
+
+* Python >= 3.7
+* Pytorch >= 1.6.0
+* Huggingface Transformers >= 3.3.0
+* Pandas
+* Numpy
+* tqdm
+
+## Process
 
 * 전처리
 

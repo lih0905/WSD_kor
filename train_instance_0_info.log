@@ -1,0 +1,311 @@
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | ----------------------------------------
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | rand_seed: 42
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | max_grad_norm: 1.0
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | lr: 0.0001
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | multigpu: False
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | context_max_length: 128
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | gloss_max_length: 128
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | epochs: 5
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | context_bsz: 8
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | gloss_bsz: 32
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | encoder_name: distilkobert
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | checkpoint: checkpoint/distilkobert_202011260659
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | eval: False
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | checkpoint_count: 0
+2020-11-26 06:59:40 |        utils.py |    INFO | get_logger | ----------------------------------------
+2020-11-26 06:59:40 |         main.py |    INFO |   <module> | Creating a new directory for checkpoint/distilkobert_202011260659
+2020-11-26 07:00:38 |        train.py |    INFO |      train | Epoch 1 initialized.
+2020-11-26 07:14:24 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:14:26 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:14:31 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:14:32 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:20:28 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:21:21 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:22:59 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:32:31 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:37:22 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:38:17 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:38:17 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:48:10 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:51:29 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 07:55:27 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:00:01 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:01:59 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:10:08 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:17:25 |        train.py |   DEBUG | train_one_epoch | 프리스타일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:20:09 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:20:09 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:22:13 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:24:48 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:25:12 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:31:28 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:31:35 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:39:37 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:42:35 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:43:57 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 08:53:33 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:15:57 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:15:58 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:15:59 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:22:49 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:22:51 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:23:37 |        train.py |    INFO | train_one_epoch | Save checkpoint at 3373-th iteration.
+2020-11-26 09:23:37 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 24.7098
+2020-11-26 09:33:35 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:34:27 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:34:31 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:36:53 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:50:53 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 09:54:00 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 10:01:35 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 10:39:22 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 10:41:23 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 10:48:18 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 10:50:14 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:02:27 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:15:20 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:17:46 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:22:10 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:44:33 |        train.py |    INFO | train_one_epoch | Save checkpoint at 6746-th iteration.
+2020-11-26 11:44:33 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 21.6564
+2020-11-26 11:50:19 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:53:32 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:53:34 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:54:57 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 11:58:53 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 12:14:38 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 12:18:24 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 12:23:41 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 12:36:37 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 12:51:36 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 14:29:08 |        train.py |    INFO | train_one_epoch | Save checkpoint at 10119-th iteration.
+2020-11-26 14:29:08 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 21.0241
+2020-11-26 14:58:08 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 16:08:44 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 16:57:26 |        train.py |   DEBUG | train_one_epoch | 수직적_NNG의 6번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 17:03:48 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 17:37:16 |        train.py |    INFO | train_one_epoch | Save checkpoint at 13492-th iteration.
+2020-11-26 17:37:16 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 20.4936
+2020-11-26 18:10:15 |        train.py |   DEBUG | train_one_epoch | 수직적_NNG의 6번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 19:50:38 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 20:39:38 |        train.py |   DEBUG | train_one_epoch | 요고_NP의 10번째 의미가 [1, 2, 3, 4]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 20:42:05 |        train.py |    INFO | train_one_epoch | Save checkpoint at 16865-th iteration.
+2020-11-26 20:42:05 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 20.0652
+2020-11-26 21:15:50 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 21:16:56 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 21:16:56 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 21:36:23 |        train.py |   DEBUG | train_one_epoch | 보트_NNP의 8번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 21:38:17 |        train.py |    INFO | train_one_epoch | Save checkpoint at 20238-th iteration.
+2020-11-26 21:38:17 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 18.0371
+2020-11-26 22:00:32 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 22:00:34 |        train.py |   DEBUG | train_one_epoch | 중이_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 22:00:34 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 22:00:34 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 22:29:24 |        train.py |    INFO | train_one_epoch | Save checkpoint at 23611-th iteration.
+2020-11-26 22:29:24 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 16.4456
+2020-11-26 23:25:37 |        train.py |    INFO | train_one_epoch | Save checkpoint at 26984-th iteration.
+2020-11-26 23:25:37 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 15.3184
+2020-11-26 23:38:34 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 23:38:35 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 23:38:54 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-26 23:58:58 |        train.py |   DEBUG | train_one_epoch | 고일_NNG의 4번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 00:20:38 |        train.py |    INFO | train_one_epoch | Save checkpoint at 30357-th iteration.
+2020-11-27 00:20:38 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 14.4054
+2020-11-27 00:20:45 |        train.py |   DEBUG | train_one_epoch | 고일_NNG의 4번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:06:38 |        train.py |    INFO | train_one_epoch | Save checkpoint at 33730-th iteration.
+2020-11-27 01:06:38 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 13.5248
+2020-11-27 01:06:47 |        train.py |    INFO |      train | Epoch: 01 | Epoch Time: 1086m 9s
+2020-11-27 01:06:47 |        train.py |    INFO |      train | 	Train Loss: 456255.334
+2020-11-27 01:06:48 |        train.py |    INFO |      train | Checkpoint saved at checkpoint/distilkobert_202011260659/saved_checkpoint_0
+2020-11-27 01:06:48 |        train.py |    INFO |      train | Epoch 2 initialized.
+2020-11-27 01:20:30 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:20:32 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:20:38 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:20:39 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:26:31 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:27:24 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:29:02 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:38:32 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:43:21 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:44:17 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:44:18 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:54:02 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 01:57:19 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:01:16 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:05:47 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:07:44 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:15:50 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:23:04 |        train.py |   DEBUG | train_one_epoch | 프리스타일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:25:49 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:25:49 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:27:53 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:30:26 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:30:52 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:37:05 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:37:12 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:45:11 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:48:06 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:49:28 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 02:58:58 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:21:20 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:21:21 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:21:21 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:28:12 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:28:14 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:29:00 |        train.py |    INFO | train_one_epoch | Save checkpoint at 3373-th iteration.
+2020-11-27 03:29:00 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 19.4160
+2020-11-27 03:38:48 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:39:39 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:39:43 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:42:07 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:56:02 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 03:59:09 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 04:06:38 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 04:44:28 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 04:46:31 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 04:53:29 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 04:55:26 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 05:07:38 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 05:20:28 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 05:22:54 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 05:27:17 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 05:49:41 |        train.py |    INFO | train_one_epoch | Save checkpoint at 6746-th iteration.
+2020-11-27 05:49:41 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 17.9853
+2020-11-27 05:55:30 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 05:58:44 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 05:58:45 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 06:00:10 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 06:04:11 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 06:20:23 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 06:24:15 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 06:29:37 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 06:42:56 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 06:58:22 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 08:36:54 |        train.py |    INFO | train_one_epoch | Save checkpoint at 10119-th iteration.
+2020-11-27 08:36:54 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 17.9833
+2020-11-27 09:06:16 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 10:17:16 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 11:05:53 |        train.py |   DEBUG | train_one_epoch | 수직적_NNG의 6번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 11:12:15 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 11:45:25 |        train.py |    INFO | train_one_epoch | Save checkpoint at 13492-th iteration.
+2020-11-27 11:45:25 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 17.7216
+2020-11-27 12:18:03 |        train.py |   DEBUG | train_one_epoch | 수직적_NNG의 6번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 13:57:35 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 14:45:34 |        train.py |   DEBUG | train_one_epoch | 요고_NP의 10번째 의미가 [1, 2, 3, 4]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 14:47:57 |        train.py |    INFO | train_one_epoch | Save checkpoint at 16865-th iteration.
+2020-11-27 14:47:57 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 17.4756
+2020-11-27 15:21:08 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 15:22:13 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 15:22:13 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 15:41:21 |        train.py |   DEBUG | train_one_epoch | 보트_NNP의 8번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 15:43:11 |        train.py |    INFO | train_one_epoch | Save checkpoint at 20238-th iteration.
+2020-11-27 15:43:11 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 15.7601
+2020-11-27 16:04:59 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 16:05:01 |        train.py |   DEBUG | train_one_epoch | 중이_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 16:05:01 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 16:05:01 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 16:33:21 |        train.py |    INFO | train_one_epoch | Save checkpoint at 23611-th iteration.
+2020-11-27 16:33:21 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 14.4121
+2020-11-27 17:28:29 |        train.py |    INFO | train_one_epoch | Save checkpoint at 26984-th iteration.
+2020-11-27 17:28:29 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 13.4733
+2020-11-27 17:41:12 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 17:41:14 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 17:41:33 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 18:01:35 |        train.py |   DEBUG | train_one_epoch | 고일_NNG의 4번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 18:23:09 |        train.py |    INFO | train_one_epoch | Save checkpoint at 30357-th iteration.
+2020-11-27 18:23:09 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 12.6978
+2020-11-27 18:23:16 |        train.py |   DEBUG | train_one_epoch | 고일_NNG의 4번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:09:05 |        train.py |    INFO | train_one_epoch | Save checkpoint at 33730-th iteration.
+2020-11-27 19:09:05 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 11.9475
+2020-11-27 19:09:14 |        train.py |    INFO |      train | Epoch: 02 | Epoch Time: 1082m 26s
+2020-11-27 19:09:14 |        train.py |    INFO |      train | 	Train Loss: 403046.232
+2020-11-27 19:09:14 |        train.py |    INFO |      train | Checkpoint saved at checkpoint/distilkobert_202011260659/saved_checkpoint_1
+2020-11-27 19:09:14 |        train.py |    INFO |      train | Epoch 3 initialized.
+2020-11-27 19:22:50 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:22:52 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:22:58 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:22:58 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:28:52 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:29:46 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:31:22 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:40:50 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:45:39 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:46:35 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:46:35 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:56:21 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 19:59:40 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:03:37 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:08:11 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:10:08 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:18:16 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:25:29 |        train.py |   DEBUG | train_one_epoch | 프리스타일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:28:14 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:28:14 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:30:17 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:32:49 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:33:13 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:39:28 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:39:35 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:47:35 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:50:32 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 20:51:53 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:01:27 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:23:48 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:23:49 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:23:49 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:30:37 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:30:39 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:31:25 |        train.py |    INFO | train_one_epoch | Save checkpoint at 3373-th iteration.
+2020-11-27 21:31:25 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 17.1696
+2020-11-27 21:41:17 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:42:08 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:42:12 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:44:32 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 21:58:19 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 22:01:26 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 22:08:57 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 22:46:37 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 22:48:39 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 22:55:34 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 22:57:30 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 23:09:35 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 23:22:22 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 23:24:48 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 23:29:10 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-27 23:51:24 |        train.py |    INFO | train_one_epoch | Save checkpoint at 6746-th iteration.
+2020-11-27 23:51:24 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 16.0888
+2020-11-27 23:57:12 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:00:25 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:00:27 |        train.py |   DEBUG | train_one_epoch | 사망률_NNG의 4번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:01:50 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:05:45 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:21:26 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:25:12 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:30:27 |        train.py |   DEBUG | train_one_epoch | 위권_NNB의 8번째 의미가 [1, 2, 3]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:43:19 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 00:58:13 |        train.py |   DEBUG | train_one_epoch | 유형_NNG의 22번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 02:35:31 |        train.py |    INFO | train_one_epoch | Save checkpoint at 10119-th iteration.
+2020-11-28 02:35:31 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 16.2337
+2020-11-28 03:04:35 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 04:14:58 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 05:03:17 |        train.py |   DEBUG | train_one_epoch | 수직적_NNG의 6번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 05:09:38 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 05:42:57 |        train.py |    INFO | train_one_epoch | Save checkpoint at 13492-th iteration.
+2020-11-28 05:42:57 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 16.1348
+2020-11-28 06:15:42 |        train.py |   DEBUG | train_one_epoch | 수직적_NNG의 6번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 07:55:05 |        train.py |   DEBUG | train_one_epoch | 팽팽_XR의 8번째 의미가 [1, 2, 3, 4, 5, 6, 7]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 08:43:03 |        train.py |   DEBUG | train_one_epoch | 요고_NP의 10번째 의미가 [1, 2, 3, 4]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 08:45:25 |        train.py |    INFO | train_one_epoch | Save checkpoint at 16865-th iteration.
+2020-11-28 08:45:25 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 16.0546
+2020-11-28 09:18:40 |        train.py |   DEBUG | train_one_epoch | 고이_NNG의 16번째 의미가 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 09:19:45 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 09:19:45 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 09:38:52 |        train.py |   DEBUG | train_one_epoch | 보트_NNP의 8번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 09:40:44 |        train.py |    INFO | train_one_epoch | Save checkpoint at 20238-th iteration.
+2020-11-28 09:40:44 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 14.5245
+2020-11-28 10:02:35 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 10:02:37 |        train.py |   DEBUG | train_one_epoch | 중이_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 10:02:38 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 10:02:38 |        train.py |   DEBUG | train_one_epoch | 중일_NNG의 3번째 의미가 [1, 2]에 포함되지 않아 학습되지 않습니다.
+2020-11-28 10:30:56 |        train.py |    INFO | train_one_epoch | Save checkpoint at 23611-th iteration.
+2020-11-28 10:30:56 |        train.py |    INFO | train_one_epoch | Loss at save checkpoint is 13.3118
