@@ -25,23 +25,15 @@ parser = argparse.ArgumentParser(description='다의어 분리 모델 파라미�
 parser.add_argument('--rand_seed', type=int, default=42)
 parser.add_argument('--max-grad-norm', type=float, default=1.0)
 parser.add_argument('--lr', type=float, default=0.0001)
-# parser.add_argument('--warmup', type=int, default=10000)
 parser.add_argument('--multigpu', action='store_true', default=False)
 parser.add_argument('--context-max-length', type=int, default=64)
 parser.add_argument('--gloss-max-length', type=int, default=64)
-parser.add_argument('--epochs', type=int, default=5)
+parser.add_argument('--epochs', type=int, default=3)
 parser.add_argument('--context-bsz', type=int, default=4)
 parser.add_argument('--gloss-bsz', type=int, default=16)
 parser.add_argument('--encoder-name', type=str, default='distilkobert')
-# 	choices=['bert-base', 'bert-large', 'roberta-base', 'roberta-large'])
 parser.add_argument('--checkpoint', type=str, default='checkpoint',
 	help='filepath at which to save model')
-# parser.add_argument('--data-path', type=str, required=True,
-# 	help='Location of top-level directory for the Unified WSD Framework')
-
-#evaluation arguments
-parser.add_argument('--eval', action='store_true',
-	help='Flag to set script to evaluate probe (rather than train)')
 
 
 if __name__ == "__main__":
@@ -67,10 +59,18 @@ if __name__ == "__main__":
         urimal_dict = json.load(f)
 
     batch_generator = BatchGenerator(tokenizer, args.context_max_length)
-    
-    # 평가 데이터 불러오기
+
+    # 훈련 데이터 로드
+    train_df = pd.read_csv('Data/processed_train.csv')
+    train_df = train_df.iloc[:40]
+    train_ds = ContextDataset(train_df)
+    train_dl = context_dataloader(train_ds, batch_generator, args.context_bsz)
+
+    train_gloss_dict, train_gloss_weight = glosses_dataloader(train_df, tokenizer, urimal_dict, args.gloss_max_length)          
+
+    # 평가 데이터 로드 
     eval_df = pd.read_csv('Data/processed_eval.csv')
-#     eval_df = eval_df.iloc[:30]
+    eval_df = eval_df.iloc[:30]
     eval_ds = ContextDataset(eval_df)
     eval_dl = context_dataloader(eval_ds, batch_generator, args.context_bsz)
 
@@ -108,24 +108,15 @@ if __name__ == "__main__":
 
     args.logger = logger
     
-        
-    if args.eval:
-        pass
-    else:
-        # 훈련 데이터 로드
-        train_df = pd.read_csv('Data/processed_train.csv')
-#         train_df = train_df.iloc[251270:251300]
-        train_ds = ContextDataset(train_df)
-        train_dl = context_dataloader(train_ds, batch_generator, args.context_bsz)
 
-        train_gloss_dict, train_gloss_weight = glosses_dataloader(train_df, tokenizer, urimal_dict, args.gloss_max_length)        
-        
-        # 훈련 스텝
-        optimizer = AdamW(model.parameters(), lr=args.lr, eps=1e-8)
-        criterion = {}
-        for key in train_gloss_dict:
-            # If reduction is 'none', then the same size as the target
-            criterion[key] = torch.nn.CrossEntropyLoss(reduction='none')
+    # 훈련 스텝
+    optimizer = AdamW(model.parameters(), lr=args.lr, eps=1e-8)
+    criterion = {}
+    for key in train_gloss_dict:
+        # If reduction is 'none', then the same size as the target
+        criterion[key] = torch.nn.CrossEntropyLoss(reduction='none')
 
-        train(train_dl, eval_dl, train_gloss_dict, eval_gloss_dict, model, optimizer, criterion, args)
-        
+    train(train_dl, eval_dl, train_gloss_dict, eval_gloss_dict, model, optimizer, criterion, args)
+    
+    
+

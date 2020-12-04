@@ -29,14 +29,14 @@ def process_encoder_outputs(output, mask, as_tensor=False):
     주어진 문장 텐서에서 다의어 토큰 위치에 대응되는 텐서만 추출한다.
     하나의 단어가 여러개의 토큰으로 토크나이즈 된 경우, 각 텐서의 평균을 return
     
-    - 입력
+    Args:
         output : bert 모델에 context_ids를 통과시켜 얻은 output tensor batch중 하나
                 (max_len, hidden_dim)
         mask : 주어진 문장의 토큰들의 다의어 마스킹 (동일한 단어로부터 분리된 토큰은 같은 값) 
                 (max_len)
         as_tensor : 리턴값을 텐서로 할지 여부
         
-    - 출력
+    Return:
         combined_outputs : 각 다의어 별로 output을 평균한 텐서
                             (다의어 수, hidden_dim)
     """

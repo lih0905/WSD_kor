@@ -37,6 +37,17 @@ gloss_device = "cuda:1"
 mecab = Mecab()
 
 def text_process(text, urimal_dict):
+    """
+    문장과 우리말샘 사전을 입력으로 받아서
+    말뭉치 데이터 형식으로 변환
+    
+    Args:
+        text : string
+        urimal_dict : dictionary
+        
+    Return:
+        pandas.DataFrame
+    """
     text_processed = mecab.pos(text)
     end = 0
     word_id = 1

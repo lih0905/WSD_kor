@@ -8,6 +8,7 @@ from itertools import chain
 
 import tqdm
 from sklearn.metrics import f1_score
+import numpy as np
 
 from utils import epoch_time
 
@@ -15,7 +16,7 @@ from utils import epoch_time
 context_device = "cuda:0"
 gloss_device = "cuda:1"
 
-def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, model_path, args):
+def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, model_path, args, save_ratio=0):
     
     logger = args.logger
     gloss_bsz = args.gloss_bsz
@@ -26,7 +27,10 @@ def train_one_epoch(train_data, gloss_dict, model, optimizer, criterion, model_p
     model.train()
     total_loss = 0
     
-    save_each_it = int(len(train_data)/10)
+    if save_ratio > 0 and save_ratio <= 1:
+        save_each_it = int(len(train_data)*save_ratio)
+    else:
+        save_each_it = 0
     
     for i, (context_ids, context_attn_mask, context_output_mask, words, sense_ids) in tqdm.tqdm(enumerate(train_data)):
         
@@ -185,31 +189,9 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
                 context_attn_mask = context_attn_mask.to('cuda')
                 
             context_output = model.context_forward(context_ids, context_attn_mask, context_output_mask)
-            
-#             # 다의어가 하나도 없는 경우 None을 리턴하므로 패스
-#             if context_output is None:
-#                 continue
 
             words_org = chain(*words)
             sense_ids_org = chain(*[list(sense_d.values()) for sense_d in sense_ids])
-            
-#             words = []
-#             for w, v in zip(words_org, sense_ids_org):
-#                 if v != -1:
-#                     words.append(w)
-                    
-#             # 다의어가 하나도 없는 경우
-#             if len(words) == 0:
-#                 continue
-                    
-#             # 배치 내 순번 / 단어 순번 저장
-#             sense_candidates = []
-#             for i in range(len(sense_ids)):
-#                 for j in sense_ids[i].keys():
-#                     sense_candidates.append([i,j,-1])
-            
-#             assert context_output.size(0) == len(list(words)), "context_output.size(0) != len(words)"
-# #             assert context_output.size(0) == len(sense_candidates)
             
             # 의미 인코더 계산
             i = 0
@@ -220,12 +202,10 @@ def predict(eval_data, gloss_dict, model, multigpu=False):
                 if word not in gloss_dict.keys() and word.replace("·", "") in gloss_dict.keys():
                     word = word.replace("·", "")
                 elif word not in gloss_dict.keys():
-#                     logger.debug(f"'{word}'는 사전에 없으므로 평가되지 않습니다.'")
                     preds.append(-1)
                     continue
                     
                 if sense_id == -1:
-#                     logger.debug(f"'{word}'는 토크나이즈되지 않았으므로 평가되지 않습니다.'")
                     preds.append(-1)
                     continue
                     
@@ -269,47 +249,37 @@ def train(train_data, eval_data, train_gloss_dict, eval_gloss_dict, model, optim
     else:
         multigpu = False
     print(f"The number of iteration for each epoch is {len(train_data)}")
-    
+
+    # 평가 데이터 라벨 기록
+    truth = []
+    for data in eval_data:
+        sense_ids_org = chain(*[list(sense_d.values()) for sense_d in data[4]])
+        truth += sense_ids_org
+
+    # 훈련 
     for epoch in range(epochs):
         logger.info(f"Epoch {epoch+1} initialized.")
         model_path = f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}"
 
         start_time = time.time()
-        # train_one_epoch(train_dl, gloss_dict, model, optimizer, criterion, model_path, args):
+        
         model, optimizer, total_loss = train_one_epoch(train_data, train_gloss_dict, model, optimizer, criterion, model_path, args)
         end_time = time.time()
         epoch_mins, epoch_secs = epoch_time(start_time, end_time)
-        
-#         # 예측 결과
-#         preds = predict(eval_data, eval_gloss_dict, model, multigpu)
-#         # 실제 결과
-#         total_labels = 0
-#         correct_labels = 0
-#         for i, data in enumerate(eval_data):
-#             # 단어들 갯수 저장
-#             words = chain(*data[3])
-#             sense_ids = chain(*data[4])
-            
-#             total_labels += len(list(words))
-#             for j, label_d in enumerate(data[4]):
-#                 # 배치마다 실제 WSD 라벨  
-#                 preds_d = {d[1]:d[2] for d in preds[i][j]}
-#                 for k, v in label_d.items():
-#                     if k in preds_d.keys() and v == preds_d[k]:
-#                         correct_labels += 1
-                
-            
-#         pred_acc = float(correct_labels/total_labels)
+
+        # 평가 데이터셋 예측
+        preds = predict(eval_data, eval_gloss_dict, model)
+        assert len(preds) == len(truth)
+        eval_acc = np.mean(np.array(preds)==np.array(truth))
+        eval_f1 = f1_score(truth, preds, average='weighted')        
         
         logger.info(f'Epoch: {epoch+1:02} | Epoch Time: {epoch_mins}m {epoch_secs}s')
         logger.info(f'\tTrain Loss: {total_loss:.3f}')
-#         logger.info(f'\tEval. Acc: {pred_acc*100:.2f}%')
+        logger.info(f'\tEval. Acc: {eval_acc*100:.2f}%')
+        logger.info(f'\tEval. F1 : {eval_f1*100:.2f}%')
     
         # Saving
         torch.save(model, f"{args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
         logger.info(f"Checkpoint saved at {args.checkpoint}/saved_checkpoint_{args.checkpoint_count}")
         args.checkpoint_count += 1
 
-def evaluate(eval_data, eval_gloss_dict, epochs, model):
-    pass
-    

@@ -114,8 +114,7 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
     start_id = 0
     tkd = tokenizer.tokenize(sent)
 
-    # 현재 토큰이 다의어의 일부에 해당하는지 여부를 기록
-    tokenized = False
+
 
     for i, tk in enumerate(tkd):
         if i == max_len:
@@ -142,6 +141,8 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
 
         # 다의어 정보 중 현재 토큰을 오버랩하는 다의어 탐색
         for w_d in wsd:
+            # 현재 토큰이 다의어의 일부에 해당하는지 여부를 기록
+            tokenized = False
             if start_id == w_d['begin']: 
                 # 토크나이즈 된 첫번째 토큰일 경우
                 # 단어+pos, sense_id, word_id 모두 기록
@@ -160,7 +161,6 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
         else:
             # 현재 토큰을 오버랩하는 다의어가 없는 경우는 단어 순번을 -1 로 기록
             word_ids.append(-1)
-            tokenized = False
     
     if len(tokens) < max_len:
         fill_len = max_len - len(tokens)
