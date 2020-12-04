@@ -17,7 +17,14 @@
 
 ## 어휘 의미 분석 말뭉치 
 
-어휘 의미 분석 말뭉치는 '문장/단어/다의어 의미 정보'의 딕셔너리로 구축되어 있으며, 총 300만 어절(문어 200만, 구어 100만)의 데이터셋이 다음과 같은 JSON 형태로 저장되어 있습니다.
+어휘 의미 분석 말뭉치는 문어와 구어로 이루어져 있으며, '문맥/문장/단어/다의어 의미 정보'의 딕셔너리로 구축되어 있습니다. 어휘 의미 분석 말뭉치의 통계 정보는 다음과 같습니다. (각 문어, 구어, 합계 순)
+
+* 문맥 : 7265 + 423 = 7688개
+* 문장 : 150,082 + 223,962 = 374,044개
+* 어절 : 2,000,213 + 1,006,447 = 3,006,660개
+* 다의어 : 1,672,688 + 467,480 = 2,140,168개
+
+이 데이터셋은 문맥/문장 단위로 다음과 같은 JSON 형태로 주어집니다.
 
 ```
 {
@@ -75,14 +82,23 @@
           'word_id': 3}],          
 }
 ```
+각 key에 대응되는 정보는 다음과 같습니다.
 
-다의어의 의미에 대한 정보는 `WSD`라는 키에 대응되어 있으며, 문장에서 해당 다의어의 인덱스 정보(`begin`, `end`), 형태소 정보(`pos`), 우리말샘 기준 의미 정보(`sense_id`) 등의 정보를 제공합니다. 
+* id : 문장별 고유번호
+* form : 문장
+* word : 문장을 구성하는 어절
+* morpheme : 문장을 구성하는 형태소
+* WSD : 문장의 다의어 
+
+다의어의 의미에 대한 정보는 `WSD`라는 키에 대응되어 있으며, 이를 통해 문장에서 해당 다의어의 인덱스 정보(`begin`, `end`), 형태소 정보(`pos`), 우리말샘 기준 의미 정보(`sense_id`) 등의 정보를 제공합니다. 
 
 어휘 뭉치 데이터의 구축은 다음 프로세스를 통해 이루어졌습니다.
 
-![diagram](https://github.com/lih0905/WSD_kor/blob/master/diagram.png?raw=true)
+![diagram](https://github.com/lih0905/WSD_kor/blob/master/images/diagram.png?raw=true)
 
 어휘 의미 말뭉치는 국립국어원 말뭉치 홈페이지에서 신청서를 작성, 허가 후 다운로드 받을 수 있습니다. 더 자세한 사항은 해당 데이터를 구축한 고려대학교 연구진이 국립국어원에 제출한 [분석보고서](https://korean.go.kr/common/download.do;front=705CF43F5B77029E1B5BE09E8910830F?file_path=reportData&c_file_name=f7222492-4580-40c6-864f-b66caeeeab3c_0.pdf&o_file_name=%EC%B5%9C%EC%A2%85%20%EB%B3%B4%EA%B3%A0%EC%84%9C_%EC%96%B4%ED%9C%98%EC%9D%98%EB%AF%B8%20%EB%B6%84%EC%84%9D%20%EB%A7%90%EB%AD%89%EC%B9%98%20%EA%B5%AC%EC%B6%95.pdf)에 수록되어 있습니다.
+
+이 모델에서는 어휘 말뭉치 중 매 10번째 문맥 데이터를 평가 데이터, 그 외를 훈련 데이터로 사용하였습니다.
 
 
 ## 우리말샘 사전
@@ -93,14 +109,85 @@
 
 우리말샘은 다음과 같이 전문가가 감수한 전통적인 의미에 더해 참여자가 제안한 정보 또한 수록되어, 갈수록 다양해지고 있는 어휘의 의미들을 품기에 적합한 사전입니다. 
 
-![우리말](https://github.com/lih0905/WSD_kor/blob/master/urimal.png?raw=true)
+![우리말](https://github.com/lih0905/WSD_kor/blob/master/images/urimal.png?raw=true)
 
-우리말샘은 누구나 자유롭게 이용할 수 있는 `크리에이티브 커먼즈 저작자표시-동일조건변경허락 2.0 대한민국 라이선스`에 따라 배포되며, 회원 가입 후 사전 전체를 XML 파일로 다운로드 할 수 있습니다.
+우리말샘은 누구나 자유롭게 이용할 수 있는 `크리에이티브 커먼즈 저작자표시-동일조건변경허락 2.0 대한민국 라이선스`에 따라 배포되며, 회원 가입 후 사전 전체를 XML 파일로 다운로드 할 수 있습니다. 
 
 
-## 데이터 및 우리말샘 사전 전처리 과정
+## 다의어 정보 인덱스 전처리
 
-* TBA
+문장과 다의어 정보로 구성된 데이터셋은 다음과 같은 형태입니다.
+
+```
+'form' : '실제 애플이 겨냥하는 상대는 구글이지 삼성전자가 아니라는 평가도 나온다.'
+ 'WSD' :  [{'word': '겨냥',
+            'sense_id': 1,
+            'pos': 'NNG',
+            'begin': 7,
+            'end': 9,
+            'word_id': 3},
+            ...]
+```
+
+여기서 `WSD` 데이터의 인덱스는 주어진 문장에서 다의어의 위치를 음절 단위로 평가한 것입니다. 그러나 해당 인덱스는 토크나이즈된 이후에는 더이상 의미가 없으므로, 토크나이즈 후 토큰별 인덱스를 기준으로 한 다의어 마스킹을 필요로 합니다.
+
+이를 다음과 같이 구현하였습니다.
+
+```python
+"""
+    Args:
+        tokenizer: transformers.Tokenizer
+        sent : string
+        wsd : dictionary(key=['word', 'sense_id', 'pos', begin', 'end', 'word_id'])
+"""
+
+tkd = tokenizer.tokenize(sent)
+sent_e = sent
+
+# 문장에 있는 다의어의 의미 번호 기록
+sense_ids = {}
+# 다의어에 해당하는 토큰은 해당 다의어의 발생 순번을 기록
+word_ids = []
+# 현재 토큰이 다의어의 일부에 해당하는지 여부를 기록
+tokenized = False
+
+    for tk in tkd:
+        diff = len(sent) - len(sent_e)
+        # 토큰의 원문 기준 인덱스 파악
+        start_id = sent_e.index(word) + diff
+        end_id = start_id + len(word)
+        # 원문 중 현재 토큰 이후 부분만 남김
+        sent_e = sent[end_id:]
+    
+        # 다의어 정보 중 현재 토큰을 오버랩하는 다의어 탐색
+        for w_d in wsd:
+            if start_id == w_d['begin']: 
+                # 토크나이즈 된 첫번째 토큰일 경우
+                # sense_id, word_id 모두 기록
+                if w_d['sense_id'] not in (777, 888, 999):
+                    # WSD 데이터의 의미번호가 777, 888, 999 이 아닌 다의어로 한정
+                    # 777 : 우리말샘에 해당 형태가 없는 경우
+                    # 888 : 우리말샘에 형태는 있되 해당 의미가 없는 경우
+                    # 999 : 말뭉치 원어절에 오타, 탈자가 있는 경우
+                    sense_ids[w_d['word_id']] = w_d['sense_id']
+                    word_ids.append(w_d['word_id'])
+                    tokenized = True
+                    # 하나의 토큰이 여러 다의어에 걸쳐 있는 경우는 없으므로
+                    # 토큰을 오버랩하는 다의어를 찾으면 바로 다음 토큰으로 넘어감
+                    break
+            elif start_id > w_d['begin'] and end_id <= w_d['end'] and tokenized:
+                # 현재 토큰이 토크나이즈된 다의어의 두번째 이후 토큰일 경우 
+                # word_id만 계속해서 기록
+                if w_d['sense_id'] not in (777, 888, 999):
+                    word_ids.append(w_d['word_id'])
+                    break
+        else:
+            # 현재 토큰을 오버랩하는 다의어가 없는 경우는 단어 순번을 -1 로 기록
+            word_ids.append(-1)
+            tokenized = False
+```
+
+이 함수는 각 토큰이 다의어에 해당하는지 여부를 마스킹하여 리턴합니다. 이 정보를 토대로 모델은 문맥 인코더를 통해 토크나이즈된 문장과 다의어 정보를 같이 학습하게 됩니다.
 
 ## 모델
 
@@ -109,11 +196,9 @@
 
 ![Model](https://github.com/facebookresearch/wsd-biencoders/raw/master/docs/wsd_biencoder_architecture.jpg)
 
-이 모델은 사전 학습된 BERT 모델을 기반으로 한 두 개의 인코더로 이루어져 있습니다. 문맥(context) 인코더를 통해 다의어와 다의어가 포함된 문장의 표현, 어구(gloss) 인코더를 통해 해당 다의어가 가지는 여러 의미들의 표현을 얻습니다. 이 두 인코더를 통해 출력된 벡터간의 내적을 통해 해당 단어의 의미를 분석합니다. 이 모델은 영문 WSD 분야에서 State-of-the-art 성능을 달성한 바 있습니다. 학습된 가중치 데이터는 [여기](https://drive.google.com/file/d/1YYerGnZ76KOKp8Ik2tUP1a6HsD9-bMNU/view?usp=sharing)에서 다운받을 수 있습니다.
+영문 WSD 분야에서 State-of-the-art 성능을 달성한 바 있는 이 모델은 사전 학습된 BERT 계열 모델을 기반으로 하는 두 개의 인코더로 이루어져 있습니다. 문맥(context) 인코더를 통해 다의어와 다의어가 포함된 문장의 표현, 어구(gloss) 인코더를 통해 해당 다의어가 가지는 여러 의미들의 표현을 얻습니다. 이 두 인코더를 통해 출력된 벡터간의 내적을 통해 해당 단어의 의미를 분석합니다. 학습된 가중치 데이터는 [여기](https://drive.google.com/file/d/1YYerGnZ76KOKp8Ik2tUP1a6HsD9-bMNU/view?usp=sharing)에서 다운받을 수 있습니다.
 
 한국어 BERT 모델은 사전학습된 [DistilKoBERT](https://github.com/monologg/DistilKoBERT)를 사용하였습니다. 
-
-
 
 ## 모델 학습 결과 
 
@@ -124,7 +209,7 @@
 
 ## 사용법
 
-* 필요한 라이브러리
+* 필요 라이브러리
     * Python >= 3.7
     * Pytorch >= 1.6.0
     * Huggingface Transformers >= 3.3.0
@@ -184,6 +269,6 @@ python eval.py --text "그는 법정에서 12년 형을 선고 받았다."
 
 * [국립국어원(2020). 국립국어원 어휘 의미 분석 말뭉치(버전 1.0)](https://corpus.korean.go.kr/)
 
-* [Moving Down the Long Tail of Word Sense Disambiguation with Gloss Informed Bi-encoders](https://blvns.github.io/papers/acl2020.pdf)
+* [Moving Down the Long Tail of Word Sense Disambiguation with Gloss Informed Bi-encoders](https://blvns.github.io/papers/acl2020.pdf) [[Code]](https://github.com/facebookresearch/wsd-biencoders)
 
 * [DistilKoBert : Distillation of KoBERT](https://github.com/monologg/DistilKoBERT)
