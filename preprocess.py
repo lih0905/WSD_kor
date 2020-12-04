@@ -19,11 +19,9 @@ import pandas as pd
 # Argparse Setting
 parser = argparse.ArgumentParser(description='전처리 파라미터 설정')
 
-#training arguments
-parser.add_argument('--data', action='store_true')
-parser.add_argument('--data-path', type=str, default='./Data')
-parser.add_argument('--dict', action='store_true')
+# training arguments
 parser.add_argument('--dict-path', type=str, default='./Dict')
+parser.add_argument('--data-path', type=str, default='./Data')
 
 fname1 = 'NXLS1902008050.json'
 fname2 = 'SXLS1902008030.json'
@@ -32,32 +30,15 @@ eval_fname = 'processed_eval.csv'
 dict_fname = 'processed_dictionary.json'
 
 
-def process(sent_input, multiwords_set):
-    """말뭉치 데이터의 문장이 주어졌을 때 문장과 WSD만 남기며, 또한 다의어 중
-    우리말 사전 기준으로 의미 갯수가 2개 이상인 것만 남긴다.
-    
-    input : dictionary(key=['id', 'form', 'word', 'morpheme', 'WSD'])
-    output : dictionary(key=['form', 'WSD'])
-    """
-    
-    sent_input2 = sent_input.copy()
-    del sent_input2['id']
-    del sent_input2['word']
-    del sent_input2['morpheme']
-    
-    WSD_multiwords = []
-    for wsd_d in sent_input2['WSD']:
-        if wsd_d['word'] in multiwords_set and wsd_d['sense_id'] not in (777,888,999):
-            WSD_multiwords.append(wsd_d)
-    sent_input2['WSD'] = WSD_multiwords
-    
-    return sent_input2
-
 def dict_to_data(dirname):
-    """우리말샘 사전 데이터를 딕셔너리로 변환
-    'key' : 단어+품사
-    'definition' : 의미
-    'sense_no' : 단어 의미 순번
+    """
+    우리말샘 사전 데이터를 딕셔너리로 변환
+
+    Args:
+        dirname : string (우리말샘 사전 파일이 저장된 폴더)
+
+    Return:
+        dictionary ('key' : 단어+품사, 'definition' : 의미, 'sense_no' : 단어 의미 순번)
     """
     dict_data = {}
     filenames = os.listdir(dirname)
@@ -88,9 +69,43 @@ def dict_to_data(dirname):
     
     return dict_data
 
+def process(sent_input, multiwords_set):
+    """
+    말뭉치 데이터의 문장이 주어졌을 때 문장과 WSD만 남기며, 또한 다의어 중
+    우리말 사전 기준으로 의미 갯수가 2개 이상인 것만 남긴다.
+    
+    Args:
+        sent_input : dictionary(key=['id', 'form', 'word', 'morpheme', 'WSD'])
+        multiwords_set : set(우리말샘 사전 기준 의미가 2개 이상인 명사의 집합)
+    Return:
+        dictionary(key=['form', 'WSD'])
+    """
+    
+    sent_input2 = sent_input.copy()
+    # 사용하지 않는 key 제거
+    del sent_input2['id']
+    del sent_input2['word']
+    del sent_input2['morpheme']
+    
+    WSD_multiwords = []
+    for wsd_d in sent_input2['WSD']:
+        # 우리말샘 기준 의미가 2개 이상인 단어이면서
+        # WSD 데이터의 의미번호가 777, 888, 999 이 아닌 다의어로 한정
+        # 777 : 우리말샘에 해당 형태가 없는 경우
+        # 888 : 우리말샘에 형태는 있되 해당 의미가 없는 경우
+        # 999 : 말뭉치 원어절에 오타, 탈자가 있는 경우
+        if wsd_d['word'] in multiwords_set and wsd_d['sense_id'] not in (777,888,999):
+            WSD_multiwords.append(wsd_d)
+    sent_input2['WSD'] = WSD_multiwords
+    
+    return sent_input2
+
 
 if __name__ == "__main__":
 
+    args = parser.parse_args()
+    dict_path = args.dict_path
+    data_path = args.data_path
 
     print("우리말샘 사전 데이터 로딩...")
     # 우리말샘 사전 데이터 불러온 후 json 파일로 저장

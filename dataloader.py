@@ -12,6 +12,20 @@ from torch.utils.data import Dataset, DataLoader
 
 # 단어별 가중치 생성
 def glosses_dataloader(data_df, tokenizer, gloss_dict, max_len=-1):
+    """
+    데이터프레임으로 주어진 데이터셋(data_df)에 등장하는 다의어들의
+    우리말샘 기준 의미들과 각 의미의 빈도를 기록하는 함수 구현
+    
+    Args:
+        data_df : pandas.DataFrame
+        tokenizer : transformers.Tokenizer
+        gloss_dict : dictionary(우리말샘 사전)
+        max_len : int
+    
+    Return:
+        sense_glosses : dictionary(key=[{words}])
+        sense_weights : dictionary(key=[{words}])
+    """
     sense_glosses = {}
     sense_weights = {}
 
@@ -23,7 +37,11 @@ def glosses_dataloader(data_df, tokenizer, gloss_dict, max_len=-1):
             sense_no = wsd_d['sense_id']
 
             if sense_no == -1 or sense_no in (777, 888, 999):
-                continue # 다의어가 아닌 경우나 고유명사인 경우는 패스
+                # 다의어가 아닌 경우나 우리말샘에 없는 경우는 제외
+                # 777 : 우리말샘에 해당 형태가 없는 경우
+                # 888 : 우리말샘에 형태는 있되 해당 의미가 없는 경우
+                # 999 : 말뭉치 원어절에 오타, 탈자가 있는 경우
+                continue 
             else:
                 word = word.replace('·','')
                 key = word + "_" + pos
@@ -34,13 +52,12 @@ def glosses_dataloader(data_df, tokenizer, gloss_dict, max_len=-1):
                         if len(gloss_arr) >= 1:
                             sensekey_arr = gloss_dict[word]['sense_no']
 
-                            #preprocess glosses into tensors
                             res = tokenizer(gloss_arr, return_tensors='pt', padding='max_length', truncation=True, max_length=max_len)
                             gloss_ids, gloss_masks = res['input_ids'], res['attention_mask']
                             sense_glosses[key] = (gloss_ids, gloss_masks, sensekey_arr)
                             # sense_glosses[key] = ( len(sensekey_arr) * max_len, len(sensekey_arr) * max_len, len(sensekey_arr) )
 
-                            #intialize weights for balancing senses
+                            # 단어별로 의미 가중치 생성
                             sense_weights[key] = [0]*len(gloss_arr)
                             w_idx = sensekey_arr.index(sense_no)
                             sense_weights[key][w_idx] += 1
@@ -70,7 +87,18 @@ def glosses_dataloader(data_df, tokenizer, gloss_dict, max_len=-1):
 ### Context Data Loader 
 
 def tokenizer_wsd(tokenizer, sent, wsd, max_len):
-    """문장을 토크나이즈 한 후 WSD에 등장하는 단어들의 의미를 마스킹"""
+    """
+    문장을 토크나이즈 한 후 WSD에 등장하는 단어들의 의미를 마스킹하는 함수
+
+    Args:
+        tokenizer: transformers.Tokenizer
+        sent : string
+        wsd : dictionary(key=['word', 'sense_id', 'pos', begin', 'end', 'word_id'])
+        max_len : int
+        
+    Return:
+        dictionary(key=['tokens', 'words', 'sense_ids', 'word_ids'])
+    """
     
     # 등장순서대로 배열되어 있지 않은 다의어들이 있어 재정렬...
     wsd = sorted(wsd, key=lambda x:x['begin'])
@@ -80,11 +108,14 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
         
     tokens = []
     word_pos = []
-    sense_ids = {}
-    word_ids = []
+    sense_ids = {} # 문장에 있는 다의어의 의미 번호 기록
+    word_ids = [] # 다의어에 해당하는 토큰은 해당 다의어의 발생 순번을 기록
     sent_e = sent
     start_id = 0
     tkd = tokenizer.tokenize(sent)
+
+    # 현재 토큰이 다의어의 일부에 해당하는지 여부를 기록
+    tokenized = False
 
     for i, tk in enumerate(tkd):
         if i == max_len:
@@ -95,23 +126,22 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
             word = tk[1:]
         else:
             word = tk
-            
         
         try:
+            # 토큰의 원문 기준 인덱스 파악
             start_id = sent_e.index(word) + diff
         except ValueError:
             # 토크나이즈 과정에서 쪼개지는 단어는 WSD에 등장하지 않음
             tokens.append(tk)
             word_ids.append(-1)
             continue
-            
-            
+                
         end_id = start_id + len(word)
-        sent_e = sent[end_id:]
+        sent_e = sent[end_id:] # 원문 중 현재 토큰 이후 부분만 남김
         tokens.append(tk)
-    
+
+        # 다의어 정보 중 현재 토큰을 오버랩하는 다의어 탐색
         for w_d in wsd:
-            tokenized = False
             if start_id == w_d['begin']: 
                 # 토크나이즈 된 첫번째 토큰일 경우
                 # 단어+pos, sense_id, word_id 모두 기록
@@ -119,6 +149,8 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
                     sense_ids[w_d['word_id']] = w_d['sense_id']
                     word_ids.append(w_d['word_id'])
                     tokenized = True
+                    # 하나의 토큰이 여러 다의어에 걸쳐 있는 경우는 없으므로
+                    # 토큰을 오버랩하는 다의어를 찾으면 바로 다음 토큰으로 넘어감
                     break
             elif start_id > w_d['begin'] and end_id <= w_d['end'] and tokenized:
                 # 두번째 이후 토큰일 경우 word_id만 계속해서 기록
@@ -126,7 +158,9 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
                     word_ids.append(w_d['word_id'])
                     break
         else:
+            # 현재 토큰을 오버랩하는 다의어가 없는 경우는 단어 순번을 -1 로 기록
             word_ids.append(-1)
+            tokenized = False
     
     if len(tokens) < max_len:
         fill_len = max_len - len(tokens)
@@ -142,8 +176,6 @@ def tokenizer_wsd(tokenizer, sent, wsd, max_len):
             sense_ids[j] = -1
             
     sense_ids = dict(sorted(sense_ids.items()))
-    #[sense_ids[j] for j in range(1, len(word_pos)+1)]
-#     dict(sorted(sense_ids[key].items(), key=lambda x: x[1], reverse=True))
     
     res = {'tokens':tokens, 'words':word_pos, 'sense_ids':sense_ids, 'word_ids':word_ids}
 
@@ -164,7 +196,7 @@ class ContextDataset(Dataset):
 
 
 class BatchGenerator:
-    """데이터로더가 후처리과정에서 토크나이즈 및 필요 정보 기록하는 함수"""
+    """데이터로더가 후처리과정에서 토크나이즈 및 필요 정보 기록하는 클래스"""
     def __init__(self, tokenizer, max_len):
         self.tokenizer = tokenizer
         self.max_len = max_len
