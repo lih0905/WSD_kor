@@ -232,7 +232,6 @@ tokenized = False
 
 
 * Bi-encoder 모델 훈련
-    * 훈련된 가중치 데이터는 [여기](https://drive.google.com/file/d/1YYerGnZ76KOKp8Ik2tUP1a6HsD9-bMNU/view?usp=sharing)에서 다운받을 수 있습니다.
 
     ```bash
     python main.py
